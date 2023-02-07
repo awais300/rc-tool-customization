@@ -1,0 +1,13 @@
+{
+    "name": "ewa/rc-tool-customization",
+    "license": "GPL-3.0",
+    "require":
+    {},
+    "autoload":
+    {
+        "psr-4":
+        {
+            "EWA\\RCTool\\": "src/"
+        }
+    }
+}
