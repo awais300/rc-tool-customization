@@ -4,6 +4,7 @@ namespace EWA\RCTool;
 
 use EWA\RCTool\Admin\Settings;
 use EWA\RCTool\Admin\Product;
+use EWA\RCTool\Admin\Order;
 
 defined('ABSPATH') || exit;
 
@@ -97,6 +98,8 @@ class Bootstrap
 		new Settings();
 		new Product();
 		new SingleProduct();
+		new Order();
+		new MyAccountOrder();
 	}
 
 	/**
