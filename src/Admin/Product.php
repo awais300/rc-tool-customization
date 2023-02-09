@@ -12,7 +12,7 @@ defined('ABSPATH') || exit;
 class Product
 {
 	/**
-	 * Global lead time field.
+	 * Product lead time field.
 	 * @var PRODUCT_LEAD_TIME_FIELD
 	 **/
 	public const PRODUCT_LEAD_TIME_FIELD = 'rc_product_lead_time';
@@ -47,24 +47,27 @@ class Product
 	 * Display tab section.
 	 **/
 	public function rctool_custom_tab_data()
-	{
-		echo '<div id="rctool_custom_tab_data" class="panel woocommerce_options_panel">';
-		echo '<div class="options_group rct-custom-field">';
+	{ ?>
+		<div id="rctool_custom_tab_data" class="panel woocommerce_options_panel">;
+			<div class="options_group rct-custom-field">';
 
-		$value = esc_textarea(get_post_meta(get_the_ID(), self::PRODUCT_LEAD_TIME_FIELD, true));
-		woocommerce_wp_textarea_input(
-			array(
-				'id'          => self::PRODUCT_LEAD_TIME_FIELD,
-				'value'       => $value,
-				'label'       => __('Product Lead Time Message: ', 'rct-customization'),
-				'placeholder' => '',
-				'description' => __('The message here will override the global message.', 'rct-customization'),
-				'desc_tip'    => true,
-			)
-		);
+				<?php
+				$value = esc_textarea(get_post_meta(get_the_ID(), self::PRODUCT_LEAD_TIME_FIELD, true));
+				woocommerce_wp_textarea_input(
+					array(
+						'id'          => self::PRODUCT_LEAD_TIME_FIELD,
+						'value'       => $value,
+						'label'       => __('Product Lead Time Message: ', 'rct-customization'),
+						'placeholder' => '',
+						'description' => __('The message here will override the global message.', 'rct-customization'),
+						'desc_tip'    => true,
+					)
+				);
+				?>
 
-		echo '</div>';
-		echo '</div>';
+			</div>;
+		</div>;
+<?php
 	}
 
 	/**
