@@ -48,8 +48,8 @@ class Product
 	 **/
 	public function rctool_custom_tab_data()
 	{ ?>
-		<div id="rctool_custom_tab_data" class="panel woocommerce_options_panel">;
-			<div class="options_group rct-custom-field">';
+		<div id="rctool_custom_tab_data" class="panel woocommerce_options_panel">
+			<div class="options_group rct-custom-field">'
 
 				<?php
 				$value = esc_textarea(get_post_meta(get_the_ID(), self::PRODUCT_LEAD_TIME_FIELD, true));
@@ -65,8 +65,8 @@ class Product
 				);
 				?>
 
-			</div>;
-		</div>;
+			</div>
+		</div>
 <?php
 	}
 
