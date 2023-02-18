@@ -100,6 +100,10 @@ class Bootstrap
 		new SingleProduct();
 		new Order();
 		new MyAccountOrder();
+
+		if (!(Helper::get_instance())->is_distributor()) {
+			new Cart();
+		}
 	}
 
 	/**
@@ -107,7 +111,7 @@ class Bootstrap
 	 */
 	public function enqueue_styles()
 	{
-		if (is_product()) {
+		if (is_product() || is_cart()) {
 			wp_enqueue_style('rct-customization-frontend', RCT_CUST_PLUGIN_DIR_URL . '/assets/css/rct-customization-frontend.css', array(), null, 'all');
 		}
 	}
