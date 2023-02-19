@@ -68,7 +68,7 @@ class Cart
 	 */
 	function add_request_form()
 	{
-		if (is_cart()) {
+		if (is_cart() && WC()->cart->get_cart_contents_count() != 0 ) {
 			echo '<div class="rc-request"><h1><span>Submit Your Request</span></h1></div>';
 			echo do_shortcode('[gravityform id="3" title="false" description="false" ajax="true"]');
 		}
