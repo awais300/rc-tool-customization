@@ -48,7 +48,7 @@
 						// Meta data.
 						$formatted_data = wc_get_formatted_cart_item_data($cart_item); // PHPCS: XSS ok.
 
-						$style_display_none = ' style="display:none !important;" ';
+						/*$style_display_none = ' style="display:none !important;" ';
 						$search = array(
 							'class="mkl_pc-extra-price"',
 							'class="mkl-pc-edit-link--container"',
@@ -59,8 +59,11 @@
 							'class="mkl-pc-edit-link--container"' . $style_display_none,
 							'<img style="width:25px; height:25px;"',
 						);
+						$formatted_data = str_ireplace($search, $replace, $formatted_data);*/
 
-						$formatted_data = str_ireplace($search, $replace, $formatted_data);
+						$formatted_data = preg_replace('#<span class="mkl_pc-extra-price"?\b(?:(?R)|(?:(?!<\/?div).))*<\/span>#', '', $formatted_data);
+
+						$formatted_data = preg_replace('#<div class="mkl-pc-edit-link--container"?\b(?:(?R)|(?:(?!<\/?div).))*<\/div>#', '', $formatted_data);
 						echo $formatted_data;
 
 						?>
