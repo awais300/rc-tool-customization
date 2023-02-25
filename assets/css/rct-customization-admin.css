@@ -1,0 +1,16 @@
+.rctool_custom_tab_section h3 {
+    font-size: 14px;
+    margin: 10px 12px;
+}
+
+.rctool_custom_tab_section i {
+    margin: 0 12px;
+    position: relative;
+    top: -10px;
+    font-size: 12px;
+}
+
+.woocommerce_options_panel.rctool_custom_tab_section {
+    display: none;
+    min-height: auto;
+}
