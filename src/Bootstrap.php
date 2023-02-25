@@ -3,7 +3,9 @@
 namespace EWA\RCTool;
 
 use EWA\RCTool\Admin\Settings;
-use EWA\RCTool\Admin\Product;
+use EWA\RCTool\Admin\Product\LeadTime;
+use EWA\RCTool\Admin\Product\SpecialProductOptions;
+use EWA\RCTool\SpecialProductOptions as SpecialProductOptionsFrontend;
 use EWA\RCTool\Admin\Order;
 
 defined('ABSPATH') || exit;
@@ -79,7 +81,8 @@ class Bootstrap
 		add_action('init', array($this, 'init'), 1);
 
 		add_action('wp_enqueue_scripts', array($this, 'enqueue_styles'));
-		//add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
+		add_action('admin_enqueue_scripts', array($this, 'enqueue_styles_admin'));
+		add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
 	}
 
 	/**
@@ -95,15 +98,22 @@ class Bootstrap
 	 */
 	public function init()
 	{
+		if (!is_admin()) {
+			if (
+				!(Helper::get_instance())->is_distributor() ||
+				WC()->session->get(SpecialProductOptionsFrontend::SESS_RC_SPECIAL_PRODUCT) === 'yes'
+			) {
+				new Cart();
+			}
+		}
+
 		new Settings();
-		new Product();
+		new LeadTime();
+		new SpecialProductOptions();
+		new SpecialProductOptionsFrontend();
 		new SingleProduct();
 		new Order();
 		new MyAccountOrder();
-
-		if (!(Helper::get_instance())->is_distributor()) {
-			new Cart();
-		}
 	}
 
 	/**
@@ -116,13 +126,28 @@ class Bootstrap
 		}
 	}
 
+	/**
+	 * Enqueue all styles in admin area.
+	 */
+	public function enqueue_styles_admin()
+	{
+		$screen = get_current_screen();
+		if ($screen->id === 'product' && isset($_GET['action']) && $_GET['action'] === 'edit') {
+			wp_enqueue_style('rct-customization-admin', RCT_CUST_PLUGIN_DIR_URL . '/assets/css/rct-customization-admin.css', array(), null, 'all');
+
+			wp_enqueue_script('rct-customization-admin', RCT_CUST_PLUGIN_DIR_URL . '/assets/js/rct-customization-admin.js', array('jquery'));
+		}
+	}
+
 
 	/**
 	 * Enqueue all scripts.
 	 */
 	public function enqueue_scripts()
 	{
-		wp_enqueue_script('rct-customization-frontend', RCT_CUST_PLUGIN_DIR_URL . '/assets/js/rct-customization-frontend.js', array('jquery'));
+		if (is_cart()) {
+			wp_enqueue_script('rct-customization-frontend', RCT_CUST_PLUGIN_DIR_URL . '/assets/js/rct-customization-frontend.js', array('jquery'));
+		}
 	}
 
 	/**
