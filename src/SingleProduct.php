@@ -2,7 +2,7 @@
 
 namespace EWA\RCTool;
 
-use EWA\RCTool\Admin\Product;
+use EWA\RCTool\Admin\Product\LeadTime;
 use EWA\RCTool\Admin\Settings;
 
 defined('ABSPATH') || exit;
@@ -37,7 +37,7 @@ class SingleProduct
 			throw new \Exception(__('Not a WooCommerce product', 'rct-customization'));
 		}
 
-		$lead_time_message = !empty($product->get_meta(Product::PRODUCT_LEAD_TIME_FIELD)) ? $product->get_meta(Product::PRODUCT_LEAD_TIME_FIELD) : get_option(Settings::GLOBAL_LEAD_TIME_FIELD);
+		$lead_time_message = !empty($product->get_meta(LeadTime::PRODUCT_LEAD_TIME_FIELD)) ? $product->get_meta(LeadTime::PRODUCT_LEAD_TIME_FIELD) : get_option(Settings::GLOBAL_LEAD_TIME_FIELD);
 
 		if (!empty($lead_time_message)) {
 			echo '<div class="rct-lead-time-message rct-woocommerce-store-notice">';
