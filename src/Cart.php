@@ -38,10 +38,14 @@ class Cart
 
 		add_action('wp_head', array($this, 'remove_sections_on_cart_page'));
 		add_action('wp_head', array($this, 'add_css'));
+
 		add_action('woocommerce_cart_collaterals', array($this, 'remove_cart_totals_section'), 9);
 		add_action('template_redirect', array($this, 'disable_checkout_page'), 9);
 		add_action('woocommerce_after_cart', array($this, 'add_request_form'), 9);
+
 		add_action('gform_pre_submission_' . self::FORM_ID, array($this, 'before_form_submit'));
+		add_action('gform_after_submission_' . self::FORM_ID, array($this, 'clear_cart_after_form_submit'), 10, 2);
+
 
 		add_filter('woocommerce_coupons_enabled', array($this, 'hide_coupon_field_on_cart_page'));
 		add_filter('woocommerce_cart_item_price', array($this, 'update_woocommerce_cart_item_price'), 10, 3);
@@ -54,7 +58,7 @@ class Cart
 	 * Disable checkout page.
 	 * @return void
 	 */
-	function disable_checkout_page()
+	public function disable_checkout_page()
 	{
 		if (is_checkout()) {
 			wp_redirect(wc_get_page_permalink('shop'));
@@ -66,9 +70,9 @@ class Cart
 	 * Add a reqeust form.
 	 * @return void
 	 */
-	function add_request_form()
+	public function add_request_form()
 	{
-		if (is_cart() && WC()->cart->get_cart_contents_count() != 0 ) {
+		if (is_cart() && WC()->cart->get_cart_contents_count() != 0) {
 			echo '<div class="rc-request"><h1><span>Submit Your Request</span></h1></div>';
 			echo do_shortcode('[gravityform id="3" title="false" description="false" ajax="true"]');
 		}
@@ -97,8 +101,17 @@ class Cart
 	 */
 	public function add_css()
 	{
-		if (is_cart() || is_product()) {
 ?>
+		<style>
+			/*hide amount on mini cart icon*/
+			ul#menu-main-menu li.wpmenucartli .amount {
+				display: none !important;
+			}
+		</style>
+
+		<?php
+		if (is_cart() || is_product()) {
+		?>
 			<style>
 				.mkl_pc-extra-price {
 					display: none !important;
@@ -120,7 +133,7 @@ class Cart
 	 * 
 	 * @return void
 	 */
-	function remove_sections_on_cart_page()
+	public function remove_sections_on_cart_page()
 	{
 		if (is_cart()) {
 			remove_action('woocommerce_proceed_to_checkout', 'woocommerce_button_proceed_to_checkout', 20);
@@ -132,7 +145,7 @@ class Cart
 	 * Remove cart total section on cart page.
 	 * @return [type] [description]
 	 */
-	function remove_cart_totals_section()
+	public function remove_cart_totals_section()
 	{
 		remove_action('woocommerce_cart_collaterals', 'woocommerce_cart_totals', 10);
 	}
@@ -142,7 +155,7 @@ class Cart
 	 * @param  bool $enabled
 	 * @return bool
 	 */
-	function hide_coupon_field_on_cart_page($enabled)
+	public function hide_coupon_field_on_cart_page($enabled)
 	{
 		if (is_cart()) {
 			$enabled = false;
@@ -157,7 +170,7 @@ class Cart
 	 * @param  String $cart_item_key
 	 * @return String
 	 */
-	function update_woocommerce_cart_item_price($default, $cart_item, $cart_item_key)
+	public function update_woocommerce_cart_item_price($default, $cart_item, $cart_item_key)
 	{
 		if (is_cart()) {
 			return '-';
@@ -171,7 +184,7 @@ class Cart
 	 * @param  WC_Cart $cart_obj
 	 * @return String
 	 */
-	function update_woocommerce_cart_item_subtotal($default, $compound_bool, $cart_obj)
+	public function update_woocommerce_cart_item_subtotal($default, $compound_bool, $cart_obj)
 	{
 		if (is_cart()) {
 			return '-';
@@ -185,7 +198,7 @@ class Cart
 	 * @param  string $domain
 	 * @return string           
 	 */
-	function rename_cart_text($translated_text, $untranslated_text, $domain)
+	public function rename_cart_text($translated_text, $untranslated_text, $domain)
 	{
 		if (is_cart()) {
 			$translated_text = str_ireplace('cart', 'RFQ', $translated_text);
@@ -200,7 +213,7 @@ class Cart
 	 * @param  int $id
 	 * @return string       
 	 */
-	function rename_cart_page_title($title, $id = null)
+	public function rename_cart_page_title($title, $id = null)
 	{
 
 		if (is_cart() && $id == $this->cart_page_id) {
@@ -208,5 +221,16 @@ class Cart
 		}
 
 		return $title;
+	}
+
+	/**
+	 * Clear cart.
+	 * @param object $entry
+	 * @param object $form
+	 */
+	public function clear_cart_after_form_submit($entry, $form)
+	{
+		// Clear cart.
+		WC()->cart->empty_cart();
 	}
 }
