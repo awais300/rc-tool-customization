@@ -18,7 +18,7 @@ class Cart
 	public $cart_page_id = null;
 
 	/**
-	 * @var $loader The template loader
+	 * @var $loader The template loader.
 	 **/
 	private $loader = null;
 
@@ -67,7 +67,7 @@ class Cart
 	}
 
 	/**
-	 * Add a reqeust form.
+	 * Add a request form.
 	 * @return void
 	 */
 	public function add_request_form()
@@ -80,6 +80,7 @@ class Cart
 
 	/**
 	 * Update cart contents for RFQ before sending email.
+	 *
 	 * @return void
 	 */
 	public function before_form_submit($form)
@@ -97,13 +98,14 @@ class Cart
 
 	/**
 	 * Hide price.
+	 *
 	 * @return void
 	 */
 	public function add_css()
 	{
 ?>
 		<style>
-			/*hide amount on mini cart icon*/
+			/* Hide amount on mini cart icon. */
 			ul#menu-main-menu li.wpmenucartli .amount {
 				display: none !important;
 			}
@@ -130,8 +132,7 @@ class Cart
 	}
 
 	/**
-	 * 
-	 * @return void
+	 * Remove sections on the cart page.
 	 */
 	public function remove_sections_on_cart_page()
 	{
@@ -143,7 +144,6 @@ class Cart
 
 	/**
 	 * Remove cart total section on cart page.
-	 * @return [type] [description]
 	 */
 	public function remove_cart_totals_section()
 	{
@@ -152,6 +152,7 @@ class Cart
 
 	/**
 	 * Hide coupon section on cart page.
+	 *
 	 * @param  bool $enabled
 	 * @return bool
 	 */
@@ -165,6 +166,7 @@ class Cart
 
 	/**
 	 * Replace the cart price column on cart page.
+	 *
 	 * @param  String $default
 	 * @param  Array $cart_item
 	 * @param  String $cart_item_key
@@ -196,7 +198,7 @@ class Cart
 	 * @param  string $translated_text
 	 * @param  string $untranslated_text
 	 * @param  string $domain
-	 * @return string           
+	 * @return string
 	 */
 	public function rename_cart_text($translated_text, $untranslated_text, $domain)
 	{
@@ -208,10 +210,10 @@ class Cart
 	}
 
 	/**
-	 * Update cart page title
+	 * Update cart page title.
 	 * @param  string $title
 	 * @param  int $id
-	 * @return string       
+	 * @return string
 	 */
 	public function rename_cart_page_title($title, $id = null)
 	{

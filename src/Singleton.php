@@ -1,4 +1,5 @@
 <?php
+
 namespace EWA\RCTool;
 
 defined('ABSPATH') || exit;
@@ -28,7 +29,7 @@ abstract class Singleton
 	 **/
 	public static function get_instance()
 	{
-		$cls = get_called_class(); // late-static-bound class name
+		$cls = get_called_class(); // late-static-bound class name.
 		if (!isset(self::$instances[$cls])) {
 			self::$instances[$cls] = new static;
 			(self::$instances[$cls])->on_construct();

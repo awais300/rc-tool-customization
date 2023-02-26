@@ -28,7 +28,7 @@ class LeadTime
 	}
 
 	/**
-	 * Register custom tab for proudct edit page.
+	 * Register custom tab for product edit page.
 	 * @param array $default_tabs
 	 * @return array
 	 */
@@ -50,7 +50,7 @@ class LeadTime
 	{ ?>
 		<div id="rctool_custom_tab_data" class="panel woocommerce_options_panel rctool_custom_tab_section">
 			<div class="options_group rct-custom-field">
-				<h3><?php echo __('Product Lead Time', 'rct-customization');?></h3>
+				<h3><?php echo __('Product Lead Time', 'rct-customization'); ?></h3>
 
 				<?php
 				$value = esc_textarea(get_post_meta(get_the_ID(), self::PRODUCT_LEAD_TIME_FIELD, true));
@@ -65,7 +65,7 @@ class LeadTime
 					)
 				);
 				?>
-				<hr/>
+				<hr />
 			</div>
 		</div>
 

@@ -86,7 +86,7 @@ class Bootstrap
 	}
 
 	/**
-	 * Localisation.
+	 * Localization.
 	 */
 	public function load_textdomain()
 	{
@@ -98,6 +98,15 @@ class Bootstrap
 	 */
 	public function init()
 	{
+		new Settings();
+		new LeadTime();
+		new SpecialProductOptions();
+		new SingleProduct();
+		new Order();
+		new MyAccountOrder();
+		new SpecialProductOptionsFrontend();
+
+
 		if (!is_admin()) {
 			if (
 				!(Helper::get_instance())->is_distributor() ||
@@ -106,14 +115,6 @@ class Bootstrap
 				new Cart();
 			}
 		}
-
-		new Settings();
-		new LeadTime();
-		new SpecialProductOptions();
-		new SpecialProductOptionsFrontend();
-		new SingleProduct();
-		new Order();
-		new MyAccountOrder();
 	}
 
 	/**
@@ -153,8 +154,8 @@ class Bootstrap
 	/**
 	 * Define constant if not already set.
 	 *
-	 * @param  string $name
-	 * @param  string|bool $value
+	 * @param string $name
+	 * @param string|bool $value
 	 */
 	public function define($name, $value)
 	{

@@ -5,7 +5,7 @@ namespace EWA\RCTool;
 defined('ABSPATH') || exit;
 
 /**
- * Class TemplateLoader
+ * Class Helper
  */
 
 class Helper extends Singleton
@@ -31,7 +31,7 @@ class Helper extends Singleton
     }
 
     /**
-     * Check if a proudct in cart that has any special option.
+     * Check if a product in cart that has any special option.
      * @return boolean
      */
     public function is_special_option_product_in_cart()
@@ -54,7 +54,8 @@ class Helper extends Singleton
 
     /**
      * Check if single/current product is special.
-     * @param array $post 
+     *
+     * @param array $post
      * @return boolean
      */
     public function is_special_option_product($post)
@@ -73,6 +74,7 @@ class Helper extends Singleton
 
     /**
      * Check if cart is empty.
+     *
      * @return boolean
      */
     public function is_cart_empty()
