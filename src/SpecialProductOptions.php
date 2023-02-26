@@ -2,7 +2,6 @@
 
 namespace EWA\RCTool;
 
-//use EWA\RCTool\Helper;
 use EWA\RCTool\Admin\Product\SpecialProductOptions as SpecialProductOptionsBackend;
 
 defined('ABSPATH') || exit;
@@ -43,7 +42,7 @@ class SpecialProductOptions
 	public const NOTES_Label = 'Notes';
 
 	/**
-	 * WC session varaible.
+	 * WC session variable.
 	 * @var SESS_RC_SPECIAL_PRODUCT
 	 **/
 	public const SESS_RC_SPECIAL_PRODUCT = 'sess_rc_special_product';
@@ -55,6 +54,7 @@ class SpecialProductOptions
 	{
 
 		add_action('wp_head', array($this, 'reset_session_if_cart_empty'), 1);
+		add_action('wp_head', array($this, 'add_script'));
 
 		add_action('woocommerce_before_add_to_cart_button', array($this, 'output_special_options_fields'), 10);
 		add_filter('woocommerce_add_cart_item_data', array($this, 'add_special_options_to_cart_item'), 10, 3);
@@ -68,11 +68,36 @@ class SpecialProductOptions
 	}
 
 	/**
+	 * Add JS Object.
+	 *
+	 * @return void
+	 */
+	public function add_script()
+	{
+		$sess_special_product = WC()->session->get(self::SESS_RC_SPECIAL_PRODUCT);
+		$js_val = '';
+		if (!empty($sess_special_product)) {
+			$js_val = $sess_special_product;
+		}
+?>
+
+		<script>
+			const RCT_OBJ = {
+				form_id: '<?php echo Cart::FORM_ID; ?>',
+				sess_special_product: '<?php echo $js_val; ?>'
+			};
+		</script>
+
+	<?php
+	}
+
+	/**
 	 * Output special option fields.
 	 */
 	public function output_special_options_fields()
 	{
-		var_dump(WC()->session->get(self::SESS_RC_SPECIAL_PRODUCT));
+		//var_dump(WC()->session->get(self::SESS_RC_SPECIAL_PRODUCT));
+
 		$helper = Helper::get_instance();
 		$helper->is_special_option_product_in_cart();
 		global $product;
@@ -84,7 +109,7 @@ class SpecialProductOptions
 		if (empty($product->get_meta(SpecialProductOptionsBackend::SPECIAL_PRODUCT_OPTION_FIELD))) {
 			return;
 		}
-?>
+	?>
 		<div class="special-product-options">
 			<div class="rc-field <?php echo self::WELDED_FIELD ?>">
 				<label><?php _e(self::WELDED_LABEL . ':', 'rct-customization'); ?></label>
@@ -113,8 +138,8 @@ class SpecialProductOptions
 	 * Add special options data to cart item.
 	 *
 	 * @param array $cart_item_data
-	 * @param int   $product_id
-	 * @param int   $variation_id
+	 * @param int $product_id
+	 * @param int $variation_id
 	 *
 	 * @return array
 	 */
@@ -185,9 +210,9 @@ class SpecialProductOptions
 	 * Add special options data to order.
 	 *
 	 * @param WC_Order_Item_Product $item
-	 * @param string                $cart_item_key
-	 * @param array                 $values
-	 * @param WC_Order              $order
+	 * @param string $cart_item_key
+	 * @param array $values
+	 * @param WC_Order $order
 	 */
 	public function add_special_options_data_to_order($item, $cart_item_key, $values, $order)
 	{
@@ -208,9 +233,24 @@ class SpecialProductOptions
 		}
 	}
 
+	/**
+	 * Set session after product is added to cart.
+	 * and set value whether a special product is in cart or not.
+	 *
+	 * @param WC_Order_Item_Product $item
+	 * @param string $cart_item_key
+	 * @param int $product_id
+	 * @param int $quantity
+	 * @param int $variation_id
+	 * @param array $variation
+	 * @param array $cart_item_data
+	 */
 	public function set_session_after_add_to_cart($cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data)
 	{
 		$helper = Helper::get_instance();
+		if (!$helper->is_distributor()) {
+			return;
+		}
 
 		$sess_special_product = WC()->session->get(self::SESS_RC_SPECIAL_PRODUCT);
 		if (empty($sess_special_product)) {
@@ -222,10 +262,20 @@ class SpecialProductOptions
 		}
 	}
 
+	/**
+	 * Validate and give appropriate error notice based
+	 * on the product in the cart. e.g. RFQ or non-RFQ
+	 *
+	 * @param bool $passed
+	 */
 	public function validate_special_product($passed)
 	{
 		$sess_special_product = WC()->session->get(self::SESS_RC_SPECIAL_PRODUCT);
 		$helper = Helper::get_instance();
+
+		if (!$helper->is_distributor()) {
+			return $passed;
+		}
 
 		if (!empty($sess_special_product)) {
 			$cart_url = '<a href="' . wc_get_cart_url() . '">submit</a>';
@@ -247,11 +297,16 @@ class SpecialProductOptions
 
 
 	/**
-	 * Reset session after checkout for special option product 
+	 * Reset session after checkout for special option product.
 	 * @param int $order_id
 	 */
 	public function reset_special_option_product_session($order_id)
 	{
+		$helper = Helper::get_instance();
+		if (!$helper->is_distributor()) {
+			return;
+		}
+
 		if (!$order_id) {
 			return;
 		}
@@ -272,7 +327,7 @@ class SpecialProductOptions
 
 
 	/**
-	 * Reset session after checkout for special option product 
+	 * Reset session after checkout for special option product.
 	 * @param object $entry
 	 * @param object $form
 	 */
