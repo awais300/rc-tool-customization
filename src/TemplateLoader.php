@@ -33,7 +33,7 @@ class TemplateLoader extends Singleton
 			include $template_path;
 			$output = ob_get_clean();
 		} else {
-			throw new \Exception(__('Specified path does not exist', 'degf-customization'));
+			throw new \Exception(__('Specified path does not exist', 'rct-customization'));
 		}
 
 		if ($echo) {
