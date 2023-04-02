@@ -5,7 +5,7 @@ namespace EWA\RCTool;
 defined('ABSPATH') || exit;
 
 /**
- * Class Order
+ * Class Cart
  * @package EWA\RCTool
  */
 
