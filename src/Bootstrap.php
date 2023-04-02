@@ -4,6 +4,7 @@ namespace EWA\RCTool;
 
 use EWA\RCTool\Admin\Settings;
 use EWA\RCTool\Admin\Product\LeadTime;
+use EWA\RCTool\Admin\Acf\UserFields;
 use EWA\RCTool\Admin\Product\SpecialProductOptions;
 use EWA\RCTool\SpecialProductOptions as SpecialProductOptionsFrontend;
 use EWA\RCTool\Admin\Order;
@@ -99,6 +100,8 @@ class Bootstrap
 	public function init()
 	{
 		new Settings();
+		new UserFields();
+		new PaymentTerms();
 		new LeadTime();
 		new SpecialProductOptions();
 		new SingleProduct();
