@@ -20,6 +20,24 @@ class SingleProduct
 	public function __construct()
 	{
 		add_action('woocommerce_before_add_to_cart_form', array($this, 'display_lead_time_message'));
+		add_filter('woocommerce_product_single_add_to_cart_text', array($this, 'custom_add_to_cart_text'), 10, 2);
+		//add_filter('woocommerce_product_add_to_cart_text', array($this, 'custom_add_to_cart_text'), 10, 2);
+
+		//add_action('init', array($this, 'action_init'));
+	}
+
+	public function action_init() {
+		if(is_admin()) {
+			return;
+		}
+
+		dd($_POST);
+		$data = wp_unslash($_POST['pc_configurator_data']);
+
+		dd($data);
+		$arr = json_decode($data, true);
+
+		dd($arr);
 	}
 
 	/**
@@ -44,5 +62,24 @@ class SingleProduct
 			echo '<p>' . $lead_time_message . '</p>';
 			echo '</div>';
 		}
+	}
+
+	/**
+	 * Add custom text for add to cart button.
+	 * @param  string $add_to_cart_text
+	 * @param  WC_PRoduct $product
+	 * @return string     
+	 */
+	public function custom_add_to_cart_text($add_to_cart_text, $product)
+	{
+		if (is_admin()) {
+			return;
+		}
+
+		if (!(Helper::get_instance())->is_distributor()) {
+			return __('Add to RFQ', 'rct-customization');
+		}
+
+		return $add_to_cart_text;
 	}
 }
