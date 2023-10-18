@@ -277,7 +277,7 @@ class SpecialProductOptions
 			return $passed;
 		}
 
-		if (!empty($sess_special_product)) {
+		/*if (!empty($sess_special_product)) {
 			$cart_url = '<a href="' . wc_get_cart_url() . '">submit</a>';
 			if ($sess_special_product === 'yes' && $helper->is_special_option_product($_POST) === false) {
 				wc_add_notice('An RFQ product is detected in the cart. You must ' . $cart_url . ' that request before adding this new item to the cart.', 'notice');
@@ -289,7 +289,7 @@ class SpecialProductOptions
 				wc_add_notice('A non-RFQ product is detected in the cart. You must ' . $checkout_url . ' before adding an RFQ item to the cart.', 'notice');
 				$passed = false;
 			}
-		}
+		}*/
 
 
 		return $passed;
@@ -302,10 +302,12 @@ class SpecialProductOptions
 	 */
 	public function reset_special_option_product_session($order_id)
 	{
+		return;
+		WC()->session->set(self::SESS_RC_SPECIAL_PRODUCT, null);
 		$helper = Helper::get_instance();
-		if (!$helper->is_distributor()) {
+		/*if (!$helper->is_distributor()) {
 			return;
-		}
+		}*/
 
 		if (!$order_id) {
 			return;

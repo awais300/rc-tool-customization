@@ -108,16 +108,18 @@ class Bootstrap
 		new Order();
 		new MyAccountOrder();
 		new SpecialProductOptionsFrontend();
+		new Blog();
+		new Cart();
 
 
-		if (!is_admin()) {
+		/*if (!is_admin()) {
 			if (
 				!(Helper::get_instance())->is_distributor() ||
 				WC()->session->get(SpecialProductOptionsFrontend::SESS_RC_SPECIAL_PRODUCT) === 'yes'
 			) {
 				new Cart();
 			}
-		}
+		}*/
 	}
 
 	/**

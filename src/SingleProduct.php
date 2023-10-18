@@ -59,6 +59,7 @@ class SingleProduct
 
 		if (!empty($lead_time_message)) {
 			echo '<div class="rct-lead-time-message rct-woocommerce-store-notice">';
+			echo '<h5><i class="fa fa-truck" aria-hidden="true"></i> Lead Time</h5>';
 			echo '<p>' . $lead_time_message . '</p>';
 			echo '</div>';
 		}
@@ -76,9 +77,9 @@ class SingleProduct
 			return;
 		}
 
-		if (!(Helper::get_instance())->is_distributor()) {
+		//if (!(Helper::get_instance())->is_distributor()) {
 			return __('Add to RFQ', 'rct-customization');
-		}
+		//}
 
 		return $add_to_cart_text;
 	}

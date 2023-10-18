@@ -1,12 +1,14 @@
 .rct-woocommerce-store-notice {
-    background-color: #2196F3 !important;
+   
 }
-
+.rct-woocommerce-store-notice i{
+	color:#345b8a;
+	padding-right:5px;
+}
 .rct-lead-time-message p {
-    padding: 10px;
+    padding: 0;
     margin: 0;
-    color: #fff;
-    font-size: 14px;
+    font-size: 18px;
 }
 
 .rc-request {
