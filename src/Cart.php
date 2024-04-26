@@ -27,7 +27,6 @@ class Cart
 	 **/
 	public const FORM_ID = 3;
 
-
 	/**
 	 * Construct the plugin.
 	 */
@@ -124,6 +123,9 @@ class Cart
 				}
 
 				.form-cart .pc-total-price {
+					display: none !important;
+				}
+				div.cart-collaterals{
 					display: none !important;
 				}
 			</style>

@@ -5,9 +5,10 @@ namespace EWA\RCTool;
 use EWA\RCTool\Admin\Settings;
 use EWA\RCTool\Admin\Product\LeadTime;
 use EWA\RCTool\Admin\Acf\UserFields;
-use EWA\RCTool\Admin\Product\SpecialProductOptions;
+//use EWA\RCTool\Admin\Product\SpecialProductOptions;
 use EWA\RCTool\SpecialProductOptions as SpecialProductOptionsFrontend;
 use EWA\RCTool\Admin\Order;
+use EWA\RCTool\Admin\RCToolAdminMenu;
 
 defined('ABSPATH') || exit;
 
@@ -15,7 +16,6 @@ defined('ABSPATH') || exit;
  * Class Bootstrap
  * @package EWA\RCTool
  */
-
 class Bootstrap
 {
 
@@ -99,16 +99,18 @@ class Bootstrap
 	 */
 	public function init()
 	{
+		new Pricing();
 		new Settings();
 		new UserFields();
+		new RCToolAdminMenu();
 		new PaymentTerms();
 		new LeadTime();
-		new SpecialProductOptions();
+		//new SpecialProductOptions();
 		new SingleProduct();
 		new Order();
 		new MyAccountOrder();
 		new SpecialProductOptionsFrontend();
-
+		new Blog();
 
 		if (!is_admin()) {
 			if (
@@ -136,7 +138,7 @@ class Bootstrap
 	public function enqueue_styles_admin()
 	{
 		$screen = get_current_screen();
-		if ($screen->id === 'product' && isset($_GET['action']) && $_GET['action'] === 'edit') {
+		if ($screen->id === 'rctool_page_pricing-levels' || ($screen->id === 'product' && isset($_GET['action']) && $_GET['action'] === 'edit')) {
 			wp_enqueue_style('rct-customization-admin', RCT_CUST_PLUGIN_DIR_URL . '/assets/css/rct-customization-admin.css', array(), null, 'all');
 
 			wp_enqueue_script('rct-customization-admin', RCT_CUST_PLUGIN_DIR_URL . '/assets/js/rct-customization-admin.js', array('jquery'));
@@ -149,7 +151,7 @@ class Bootstrap
 	 */
 	public function enqueue_scripts()
 	{
-		if (is_cart()) {
+		if (is_product() || is_cart()) {
 			wp_enqueue_script('rct-customization-frontend', RCT_CUST_PLUGIN_DIR_URL . '/assets/js/rct-customization-frontend.js', array('jquery'));
 		}
 	}
