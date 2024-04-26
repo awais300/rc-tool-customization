@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Plugin Name: RC Tool Customization
  * Description: Customization for RC Tool.
@@ -9,14 +10,32 @@
 
 namespace EWA\RCTool;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (!defined('ABSPATH')) {
 	exit; // Exit if accessed directly.
 }
 
-if ( ! defined( 'RCT_CUST_PLUGIN_FILE' ) ) {
-    define( 'RCT_CUST_PLUGIN_FILE', __FILE__ );
+if (!defined('RCT_CUST_PLUGIN_FILE')) {
+	define('RCT_CUST_PLUGIN_FILE', __FILE__);
 }
 
 require_once 'vendor/autoload.php';
 
 Bootstrap::get_instance();
+
+/**
+ * Activate the plugin.
+ */
+function rctool_on_activate()
+{
+	(Schema::instance())->create_table();
+}
+register_activation_hook(__FILE__, __NAMESPACE__ . '\\rctool_on_activate');
+
+
+/**
+ * Deactivation hook.
+ */
+function rctool_on_deactivate()
+{
+}
+register_deactivation_hook(__FILE__, __NAMESPACE__ . '\\rctool_on_deactivate');
