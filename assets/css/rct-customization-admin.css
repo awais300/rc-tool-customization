@@ -14,3 +14,7 @@
     display: none;
     min-height: auto;
 }
+
+.acf-field.acf-field-message {
+    background-color: #ebada3;
+}
