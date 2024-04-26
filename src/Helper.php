@@ -6,13 +6,14 @@ defined('ABSPATH') || exit;
 
 /**
  * Class Helper
+ * Provides helper methods for various tasks.
  */
-
 class Helper extends Singleton
 {
     /**
-     * Check if current user belong to distributor role.
-     * @return boolean
+     * Check if the current user belongs to the distributor role.
+     *
+     * @return boolean True if the user is a distributor, false otherwise.
      */
     public function is_distributor()
     {
@@ -31,8 +32,9 @@ class Helper extends Singleton
     }
 
     /**
-     * Check if a product in cart that has any special option.
-     * @return boolean
+     * Check if a product in the cart has any special options.
+     *
+     * @return boolean True if a product with special options is in the cart, false otherwise.
      */
     public function is_special_option_product_in_cart()
     {
@@ -53,10 +55,10 @@ class Helper extends Singleton
     }
 
     /**
-     * Check if single/current product is special.
+     * Check if a single/current product has special options.
      *
-     * @param array $post
-     * @return boolean
+     * @param array $post The post data.
+     * @return boolean True if the product has special options, false otherwise.
      */
     public function is_special_option_product($post)
     {
@@ -73,9 +75,9 @@ class Helper extends Singleton
     }
 
     /**
-     * Check if cart is empty.
+     * Check if the cart is empty.
      *
-     * @return boolean
+     * @return boolean True if the cart is empty, false otherwise.
      */
     public function is_cart_empty()
     {
@@ -84,5 +86,57 @@ class Helper extends Singleton
         } else {
             return false;
         }
+    }
+
+    /**
+     * Get the historical level based on the given range.
+     *
+     * @param string $range The range of quantities.
+     * @return string The historical level.
+     */
+    public function get_historical_level($range)
+    {
+        $level = array(
+            '2-9' => 'level1',
+            '10-24' => 'level2',
+            '25-49' => 'level3',
+            '50+' => 'level4',
+        );
+
+        return $level[trim($range)];
+    }
+
+    /**
+     * Get the quantity purchased level based on the given range and quantity.
+     *
+     * @param array $arr The range array.
+     * @param int $qty The quantity.
+     * @return string|false The quantity purchased level.
+     */
+    public function get_qty_purchased_level($arr, $qty)
+    {
+        array_shift($arr);
+        foreach ($arr as $key => $value) {
+            // Split the range if it contains a hyphen
+            $range = explode('-', $value);
+
+            // If it's a single value and does not contain a plus sign
+            if (count($range) == 1 && substr($range[0], -1) != '+' && $qty == $range[0]) {
+                return $key;
+            }
+
+            // If it's a range
+            if (count($range) == 2 && $qty >= $range[0] && $qty <= $range[1]) {
+                return $key;
+            }
+
+            // If it's with a plus sign
+            if (count($range) == 1 && substr($range[0], -1) == '+' && $qty >= $range[0]) {
+                return $key;
+            }
+        }
+
+        // If the number is not in any range
+        return false;
     }
 }
