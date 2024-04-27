@@ -48,27 +48,63 @@ class SpecialProductOptions
 
 		add_action('woocommerce_add_to_cart', array($this, 'set_session_after_add_to_cart'), 1, 6);
 		add_filter('woocommerce_add_to_cart_redirect', array($this, 'custom_add_to_cart_redirect'));
-		add_filter('template_redirect', array($this, 'the_test'));
+		add_filter('template_redirect', array($this, 'hide_unwanted_notice'));
+		add_filter('template_redirect', array($this, 'redirect_to_product'));
 
 		add_action('woocommerce_thankyou', array($this, 'reset_special_option_product_session'), 10, 1);
 
 		add_action('gform_after_submission_' . Cart::FORM_ID, array($this, 'reset_session_after_form_submit'), 10, 2);
+
+		add_filter('woocommerce_cart_item_permalink', array($this, 'custom_cart_item_permalink'), 10, 3);
 	}
 
-	function custom_add_to_cart_redirect()
+	/**
+	 * Remvoe permalink of proudct on cart page.
+	 * @return string
+	 **/
+	public function custom_cart_item_permalink($permalink, $cart_item, $cart_item_key)
 	{
-		// Get the product ID that was just added to the cart
+
+		return '';
+	}
+
+	/**
+	 * Redirect wthout query string if specicic query string is found.
+	 *
+	 * @return void
+	 **/
+	public function redirect_to_product()
+	{
+		if (isset($_GET['load_config_from_cart']) && !empty($_GET['load_config_from_cart'])) {
+			$actual_link = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+
+			$actual_link = parse_url($actual_link);
+			$redirect_link = $actual_link['scheme'] . "://" . $actual_link['host'] . $actual_link['path'];
+			wp_redirect($redirect_link);
+			exit;
+		}
+	}
+
+	/**
+	 * Redirect to same product page after add to cart is clicked.
+	 *
+	 * @return void
+	 **/
+	public function custom_add_to_cart_redirect()
+	{
+
 		$product_id = (int) $_REQUEST['add-to-cart'];
-
-		// Get the URL of the product page
 		$product_permalink = get_permalink($product_id);
-
-		// Return the product page URL for redirection
 		return $product_permalink;
 	}
 
 
-	function the_test()
+	/**
+	 * Hide notice 'Product is added to cart' if RFQ or non-RFQ notice is detected.
+	 * We are doing this because we changed the way we handle "Special options". We now
+	 * use special options within Product Configurator.
+	 **/
+	public function hide_unwanted_notice()
 	{
 		$notices = WC()->session->get('wc_notices', array());
 		$needle = 'RFQ product is detected in the cart. You must';
@@ -88,14 +124,14 @@ class SpecialProductOptions
 			}
 		}
 
-		if($found){
-			?>
+		if ($found) {
+?>
 			<style>
-				div.woocommerce-notices-wrapper .woocommerce-message{
+				div.woocommerce-notices-wrapper .woocommerce-message {
 					display: none !important;
 				}
 			</style>
-			<?php
+		<?php
 		}
 	}
 
@@ -114,10 +150,18 @@ class SpecialProductOptions
 		}
 
 		$is_guest_user = 1;
-		if((Helper::get_instance())->is_distributor()) {
+		if ((Helper::get_instance())->is_distributor()) {
 			$is_guest_user = 0;
 		}
-?>
+		?>
+		<?php if (is_product()) : ?>
+			<style>
+				.pc-total-price--container,
+				p.price {
+					display: none !important;
+				}
+			</style>
+		<?php endif; ?>
 
 		<script>
 			const RCT_OBJ = {
