@@ -127,7 +127,7 @@ class Bootstrap
 	 */
 	public function enqueue_styles()
 	{
-		if (is_product() || is_cart()) {
+		if (is_product() || is_cart() || is_checkout()) {
 			wp_enqueue_style('rct-customization-frontend', RCT_CUST_PLUGIN_DIR_URL . '/assets/css/rct-customization-frontend.css', array(), null, 'all');
 		}
 	}
