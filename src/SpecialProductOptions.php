@@ -48,14 +48,14 @@ class SpecialProductOptions
 
 		add_action('woocommerce_add_to_cart', array($this, 'set_session_after_add_to_cart'), 1, 6);
 		add_filter('woocommerce_add_to_cart_redirect', array($this, 'custom_add_to_cart_redirect'));
+
 		add_filter('template_redirect', array($this, 'hide_unwanted_notice'));
 		add_filter('template_redirect', array($this, 'redirect_to_product'));
 
 		add_action('woocommerce_thankyou', array($this, 'reset_special_option_product_session'), 10, 1);
-
 		add_action('gform_after_submission_' . Cart::FORM_ID, array($this, 'reset_session_after_form_submit'), 10, 2);
 
-		add_filter('woocommerce_cart_item_permalink', array($this, 'custom_cart_item_permalink'), 10, 3);
+		add_filter('woocommerce_cart_item_permalink', array($this, 'custom_cart_item_permalink'), 40, 3);
 	}
 
 	/**
