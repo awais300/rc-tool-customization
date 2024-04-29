@@ -53,9 +53,32 @@ class SpecialProductOptions
 		add_filter('template_redirect', array($this, 'redirect_to_product'));
 
 		add_action('woocommerce_thankyou', array($this, 'reset_special_option_product_session'), 10, 1);
-		add_action('gform_after_submission_' . Cart::FORM_ID, array($this, 'reset_session_after_form_submit'), 10, 2);
+		add_action('gform_after_submission_' . Cart::FORM_ID, array($this, 'reset_wc_session'), 10, 2);
 
 		add_filter('woocommerce_cart_item_permalink', array($this, 'custom_cart_item_permalink'), 40, 3);
+		add_action('wp_login', array($this, 'handle_login_action'), 10, 2);
+		add_action('wp_logout', array($this, 'handle_logout_action'));
+	}
+
+	/**
+	 * Perform actions after user logout.
+	 *
+	 */
+	public function handle_logout_action()
+	{
+		$this->reset_wc_session(null, null);
+	}
+
+	/**
+	 * Handle custom actions after user login.
+	 * Here we are only reset the WC special option session and clear the cart.
+	 *
+	 * @param string $user_login The user's username.
+	 * @param WP_User $user The logged-in user object.
+	 */
+	public function handle_login_action($user_login, $user)
+	{
+		$this->reset_wc_session(null, null);
 	}
 
 	/**
@@ -315,13 +338,13 @@ class SpecialProductOptions
 	}
 
 	/**
-	 * Resets session after form submission.
+	 * Resets session after form submission and clear the cart.
 	 *
 	 * @param object $entry
 	 * @param object $form
 	 * @return void
 	 */
-	public function reset_session_after_form_submit($entry, $form)
+	public function reset_wc_session($entry, $form)
 	{
 		// Reset session.
 		WC()->session->set(self::SESS_RC_SPECIAL_PRODUCT, null);
