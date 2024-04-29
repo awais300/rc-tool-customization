@@ -61,6 +61,14 @@ class SpecialProductOptions
 	}
 
 	/**
+	 * Reset the session.
+	 **/
+	public static function reset_session() {
+		$self = new self();
+        $self->reset_wc_session(null, null);
+	}
+
+	/**
 	 * Perform actions after user logout.
 	 *
 	 */
@@ -338,8 +346,8 @@ class SpecialProductOptions
 	}
 
 	/**
-	 * Resets session after form submission and clear the cart.
-	 *
+	 * Resets session and clear the WC cart.
+	 * 
 	 * @param object $entry
 	 * @param object $form
 	 * @return void

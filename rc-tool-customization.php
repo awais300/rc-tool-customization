@@ -28,6 +28,7 @@ Bootstrap::get_instance();
 function rctool_on_activate()
 {
 	(Schema::instance())->create_table();
+	SpecialProductOptions::reset_session();
 }
 register_activation_hook(__FILE__, __NAMESPACE__ . '\\rctool_on_activate');
 
@@ -37,5 +38,6 @@ register_activation_hook(__FILE__, __NAMESPACE__ . '\\rctool_on_activate');
  */
 function rctool_on_deactivate()
 {
+	SpecialProductOptions::reset_session();
 }
 register_deactivation_hook(__FILE__, __NAMESPACE__ . '\\rctool_on_deactivate');
