@@ -61,14 +61,6 @@ class SpecialProductOptions
 	}
 
 	/**
-	 * Reset the session.
-	 **/
-	public static function reset_session() {
-		$self = new self();
-        $self->reset_wc_session(null, null);
-	}
-
-	/**
 	 * Perform actions after user logout.
 	 *
 	 */
