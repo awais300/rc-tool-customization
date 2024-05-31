@@ -58,6 +58,42 @@ class SpecialProductOptions
 		add_filter('woocommerce_cart_item_permalink', array($this, 'custom_cart_item_permalink'), 40, 3);
 		add_action('wp_login', array($this, 'handle_login_action'), 10, 2);
 		add_action('wp_logout', array($this, 'handle_logout_action'));
+
+		add_filter('mkl_pc_item_meta', array($this, 'filter_mkl_pc_item_meta'), 11, 5);
+	}
+
+	/**
+	 * Unset or remove product configurator special options if empty or not selected.
+	 *
+	 * @param $meta
+	 * @param $layer
+	 * @param $product
+	 * @param $item_key
+	 * @param $context
+	 *
+	 * @return array
+	 * 
+	 * */
+	public function filter_mkl_pc_item_meta($meta, $layer, $product, $item_key, $context)
+	{
+
+		$layer_name = $layer->get_layer('name');
+		if (in_array($layer_name, $this->layer_names)) {
+
+			if (isset($layer->field_value)) {
+				$text_val = $layer->field_value;
+				if (empty($text_val)) {
+					return array();
+				}
+			} else {
+				$shelf = $layer->get_choice('name');
+				if (!in_array($shelf, $this->allowed_shelf)) {
+					return array();
+				}
+			}
+		}
+
+		return $meta;
 	}
 
 	/**
