@@ -61,7 +61,7 @@ class SpecialProductOptions
 
 		add_filter('mkl_pc_item_meta', array($this, 'filter_mkl_pc_item_meta'), 11, 5);
 
-		add_filter('wc_add_to_cart_message', array($this, 'rename_notice_text'), 10);
+		add_filter('wc_add_to_cart_message', array($this, 'change_notice_text'), 10);
 	}
 
 	/**
@@ -71,8 +71,12 @@ class SpecialProductOptions
 	 *
 	 * @return string
 	 **/
-	public function rename_notice_text($notice)
+	public function change_notice_text($notice)
 	{
+		if((Helper::get_instance())->is_distributor()) {
+			return $notice;
+		}
+
 		if (strpos($notice, 'has been added to your cart') !== false) {
 			$notice = str_ireplace('has been added to your cart', 'has been added to your RFQ Cart.Click the cart to submit your RFQ', $notice);
 		}
