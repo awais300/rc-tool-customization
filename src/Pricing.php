@@ -52,12 +52,17 @@ class Pricing extends Singleton
     /**
      * @var FORM_ID The form ID.
      **/
-    public const FORM_ID = 4;
+    public const FORM_ID = 3;
 
     /**
      * @var IS_PRODUCT_RFQ The key to detect if its RFQ.
      **/
     public const IS_PRODUCT_RFQ = '_is_product_rfq';
+
+    /**
+     * @var PRODUCT_RFQ_PRICE The RFQ price.
+     **/
+    public const PRODUCT_NEW_PRICE = '_product_new_price';
 
 
     /**
@@ -72,7 +77,63 @@ class Pricing extends Singleton
         add_filter('woocommerce_cart_item_subtotal', array($this, 'custom_woocommerce_cart_item_subtotal_message'), 5000, 3);
 
         add_action('gform_pre_submission_' . self::FORM_ID, array($this, 'before_form_submit'));
-        add_action('gform_after_submission_' . self::FORM_ID, array($this, 'remove_rfq_products_after_form_submit'), 10);
+
+        add_action('woocommerce_cart_contents', array($this, 'hide_unwanted_woocommerce_cart_contents'), 9);
+        add_action('woocommerce_after_cart', array($this, 'add_gf_form'));
+    }
+
+
+    /**
+     * Add GF form
+     **/
+    public function add_gf_form()
+    {
+
+        if (
+            is_cart() &&
+            WC()->cart->get_cart_contents_count() != 0 &&
+            $this->has_rfq_in_cart() &&
+            WC()->session->get(SpecialProductOptionsFrontend::SESS_RC_SPECIAL_PRODUCT) === 'no'
+        ) {
+            echo '<div id="rfq-email" class="rc-request-2"><h1><span>Submit Your Request</span></h1>';
+            echo do_shortcode('[gravityform id="' . self::FORM_ID . '" title="false" description="false" ajax="true"]');
+            echo '</div>';
+        }
+    }
+
+    /**
+     * Hide cart sections.
+     **/
+    public function hide_unwanted_woocommerce_cart_contents()
+    {
+        if (is_cart() && $this->has_rfq_in_cart() && WC()->session->get(SpecialProductOptionsFrontend::SESS_RC_SPECIAL_PRODUCT) === 'no') {
+
+            remove_action('woocommerce_proceed_to_checkout', 'woocommerce_button_proceed_to_checkout', 20);
+            //remove_action('woocommerce_cart_collaterals', 'woocommerce_cross_sell_display');
+            //remove_action('woocommerce_cart_collaterals', 'woocommerce_cart_totals', 10);
+            add_filter('woocommerce_coupons_enabled', '__return_false');
+?>
+            <style>
+                div.cart-collaterals {
+                    display: none !important;
+                }
+            </style>
+        <?php
+        }
+
+        if (!$this->has_rfq_in_cart()) {
+        ?>
+            <style>
+                div.rc-request-2 {
+                    display: none !important;
+                }
+
+                div.cart-collaterals {
+                    display: block !important;
+                }
+            </style>
+<?php
+        }
     }
 
     /**
@@ -86,7 +147,7 @@ class Pricing extends Singleton
      **/
     public function custom_woocommerce_cart_item_price_message($price, $cart_item, $cart_item_key)
     {
-        if(WC()->session->get(SpecialProductOptionsFrontend::SESS_RC_SPECIAL_PRODUCT) === 'yes') {
+        if (WC()->session->get(SpecialProductOptionsFrontend::SESS_RC_SPECIAL_PRODUCT) === 'yes') {
             return $price;
         }
 
@@ -94,7 +155,7 @@ class Pricing extends Singleton
         $custom_message = $price;
 
         if ($item_price == 0) {
-            $custom_message = '<a class="rfq-email popmake-19761" href="javascript:void(0);">Email for RFQ</a>';
+            $custom_message = '<a class="rfq-email" href="javascript:void(0);">Email for RFQ</a>';
         }
 
         return $custom_message;
@@ -112,7 +173,7 @@ class Pricing extends Singleton
      **/
     public function custom_woocommerce_cart_item_subtotal_message($subtotal, $cart_item, $cart_item_key)
     {
-        if(WC()->session->get(SpecialProductOptionsFrontend::SESS_RC_SPECIAL_PRODUCT) === 'yes') {
+        if (WC()->session->get(SpecialProductOptionsFrontend::SESS_RC_SPECIAL_PRODUCT) === 'yes') {
             return $subtotal;
         }
 
@@ -134,54 +195,40 @@ class Pricing extends Singleton
      */
     public function before_form_submit($form)
     {
-        $keys = $this->get_item_keys_for_missing_skus();
-        $data = array(
-            'keys' => $keys,
-        );
-        $cart_contents = $this->loader->get_template(
-            'cart-contents-missing-sku.php',
-            $data,
-            RCT_CUST_PLUGIN_DIR_PATH . '/templates/',
-            false
-        );
+        if (
+            is_cart() &&
+            $this->has_rfq_in_cart() &&
+            WC()->session->get(SpecialProductOptionsFrontend::SESS_RC_SPECIAL_PRODUCT) === 'no'
+        ) {
+            $data = array();
+            $cart_contents = $this->loader->get_template(
+                'cart-contents-missing-sku.php',
+                $data,
+                RCT_CUST_PLUGIN_DIR_PATH . '/templates/',
+                false
+            );
 
-        $_POST['input_8'] = $cart_contents;
+            $_POST['input_8'] = $cart_contents;
+        }
     }
 
     /**
-     * After sucessfull RFQ email. Remove RFQ products so user can checkout normally.
+     * Check If cart has a RFQ item in it.
+     * 
+     * A product whose price couludn't find against SKU or SKU don't exist at all.
      *
-     * @return void
-     */
-    public function remove_rfq_products_after_form_submit($form)
+     * @return bool
+     **/
+    public function has_rfq_in_cart()
     {
-        $cart_item_keys = array();
         $cart = WC()->cart;
         foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
             if (isset($cart_item[self::IS_PRODUCT_RFQ]) && $cart_item[self::IS_PRODUCT_RFQ] == 'rfq_yes') {
-                $cart->remove_cart_item($cart_item_key);
+                return true;
             }
         }
 
-        return $cart_item_keys;
-    }
-
-    /**
-     * Store current cart item keys in an array.
-     *
-     * @return array The cart time keys.
-     **/
-    public function get_item_keys_for_missing_skus()
-    {
-        $cart_item_keys = array();
-        $cart = WC()->cart;
-        foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
-            if (isset($cart_item[self::IS_PRODUCT_RFQ]) && $cart_item[self::IS_PRODUCT_RFQ] == 'rfq_no') {
-                $cart_item_keys[] = $cart_item_key;
-            }
-        }
-
-        return $cart_item_keys;
+        return false;
     }
 
     /**
@@ -213,7 +260,8 @@ class Pricing extends Singleton
             $item_sku = $this->get_pc_sku($cart_item);
 
             // For testing purpose only.
-            /*if ($product_id == '19197') {
+            /*$product_id = $cart_item['data']->get_id();
+            if ($product_id == '19235') {
                 $item_sku = 'JU963624.UGH';
             }*/
 
@@ -230,10 +278,13 @@ class Pricing extends Singleton
 
             $row = $this->get_pricing_levels_by_sku($item_sku);
             if (isset($row->{$price_level})) {
-                $cart_item['data']->set_price($row->{$price_level});
+                $extra_price = $this->get_extra_price($cart_item);
+                $new_price = $row->{$price_level} + $extra_price;
+                $cart_item['data']->set_price($new_price);
 
                 $cart_content = WC()->cart->cart_contents;
                 $cart_content[$cart_item_key][self::IS_PRODUCT_RFQ] = 'rfq_no';
+                $cart_content[$cart_item_key][self::PRODUCT_NEW_PRICE] = $new_price;
                 WC()->cart->set_cart_contents($cart_content);
             } else {
                 $cart_item['data']->set_price(0);
@@ -246,11 +297,38 @@ class Pricing extends Singleton
         }
 
         if ($is_rfq_item_exist && is_checkout()) {
-            //$redirect_url = add_query_arg(array('rfq-message' => urlencode($custom_message)), wc_get_cart_url());
-            wc_add_notice('Please click on "Email for RFQ" to send the email before proceeding to checkout.', 'notice');
+            wc_add_notice('Please click on "Email for RFQ" to send your cart in the email', 'notice');
             wp_redirect(wc_get_cart_url());
             exit;
         }
+    }
+
+
+    /**
+     * Get extra price if configurable proudct has any.
+     *
+     * @param array The cart item
+     *
+     * @return float The extra price.
+     */
+    function get_extra_price($cart_item)
+    {
+        if (mkl_pc_is_configurable($cart_item['product_id']) && isset($cart_item['configurator_data']) && is_array($cart_item['configurator_data'])) {
+
+            foreach ($cart_item['configurator_data'] as $layer) {
+                if (!$layer) {
+                    return floatval(0);
+                }
+
+                if (apply_filters('mkl_pc/extra_price/add_extra_price', true, $layer, $cart_item)) {
+                    $extra_price = $layer->get_choice('extra_price');
+
+                    return floatval($extra_price);
+                }
+            }
+        }
+
+        return floatval(0);
     }
 
     /**
