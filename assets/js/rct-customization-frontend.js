@@ -1,11 +1,15 @@
 jQuery(document).ready(function($) {
     $(document).on("gform_confirmation_loaded", function(e, form_id) {
-        if (form_id == RCT_OBJ.form_id) {
+        if (form_id == RCT_OBJ.form_id || form_id == 3) {
             $('.woocommerce-notices-wrapper, .woocommerce-cart-form').hide();
         }
     });
 
-
+    $('a.rfq-email').click(function() {
+        $('html, body').animate({
+            scrollTop: $("div#rfq-email").offset().top - 20
+        }, 1000);
+    });
 });
 
 var PC_IS_SPECIAL_OPTION_OPTED_1 = false;
