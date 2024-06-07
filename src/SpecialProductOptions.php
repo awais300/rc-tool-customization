@@ -60,6 +60,24 @@ class SpecialProductOptions
 		add_action('wp_logout', array($this, 'handle_logout_action'));
 
 		add_filter('mkl_pc_item_meta', array($this, 'filter_mkl_pc_item_meta'), 11, 5);
+
+		add_filter('wc_add_to_cart_message', array($this, 'rename_notice_text'), 10);
+	}
+
+	/**
+	 * Change the add to cart message.
+	 * 
+	 * @param string
+	 *
+	 * @return string
+	 **/
+	public function rename_notice_text($notice)
+	{
+		if (strpos($notice, 'has been added to your cart') !== false) {
+			$notice = str_ireplace('has been added to your cart', 'has been added to your RFQ Cart.Click the cart to submit your RFQ', $notice);
+		}
+
+		return $notice;
 	}
 
 	/**
@@ -166,6 +184,12 @@ class SpecialProductOptions
 	public function hide_unwanted_notice()
 	{
 		$notices = WC()->session->get('wc_notices', array());
+		$note = $notices['success'][0]['notice'];
+
+		if (str_contains($note, 'has been added to your cart')) {
+			//$notices['success'][0]['notice'] = str_ireplace('has been added to your cart', 'has been added to your RFQ Cart. Please click the cart to submit your RFQ.', $notices['success'][0]['notice']);
+		}
+
 		$needle = 'RFQ product is detected in the cart. You must';
 
 		$found = false;
