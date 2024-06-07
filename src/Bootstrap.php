@@ -114,7 +114,7 @@ class Bootstrap
 		new MyAccountOrder();
 		new SpecialProductOptionsFrontend();
 		new Blog();
-
+		
 		if (!is_admin()) {
 			if (
 				!(Helper::get_instance())->is_distributor() ||
