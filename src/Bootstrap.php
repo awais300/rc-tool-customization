@@ -82,6 +82,7 @@ class Bootstrap
 	{
 		add_action('init', array($this, 'load_textdomain'));
 		add_action('init', array($this, 'init'), 1);
+		add_action('wp_loaded', array($this, 'wp_loaded'));
 
 		add_action('wp_enqueue_scripts', array($this, 'enqueue_styles'));
 		add_action('admin_enqueue_scripts', array($this, 'enqueue_styles_admin'));
@@ -101,6 +102,7 @@ class Bootstrap
 	 */
 	public function init()
 	{
+		new User();
 		new Pricing();
 		new Settings();
 		new UserFields();
@@ -115,10 +117,25 @@ class Bootstrap
 		new SpecialProductOptionsFrontend();
 		new Blog();
 		
-		if (!is_admin()) {
+		/*if (!is_admin()) {
 			if (
 				!(Helper::get_instance())->is_distributor() ||
-				WC()->session->get(SpecialProductOptionsFrontend::SESS_RC_SPECIAL_PRODUCT) === 'yes'
+				WC()->session->get(SpecialProductOptionsFrontend::SESS_RC_SPECIAL_PRODUCT) === 'yes' ||
+				(Helper::get_instance())->has_rfq_in_cart()
+			) {
+				new Cart();
+			}
+		}*/
+	}
+
+	/**
+	 * WP Loaded.
+	 */
+	public function wp_loaded()
+	{
+		if (!is_admin()) {
+			if (
+				!(Helper::get_instance())->is_distributor() || (Helper::get_instance())->has_rfq_in_cart()
 			) {
 				new Cart();
 			}

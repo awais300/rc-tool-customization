@@ -19,6 +19,14 @@ class SpecialProductOptions
 	public const SESS_RC_SPECIAL_PRODUCT = 'sess_rc_special_product';
 
 	/**
+	 * Product item whether its has special option.
+	 * Opting special option makes that product RFQ.
+	 * 
+	 * @var string IS_SPECIAL_PRODUCT_RFQ
+	 **/
+	public const IS_SPECIAL_PRODUCT_RFQ = '_is_special_product_rfq';
+
+	/**
 	 * Array of layer names.
 	 * @var array
 	 */
@@ -46,7 +54,8 @@ class SpecialProductOptions
 		add_action('wp_head', array($this, 'reset_session_if_cart_empty'), 1);
 		add_action('wp_head', array($this, 'add_script'));
 
-		add_action('woocommerce_add_to_cart', array($this, 'set_session_after_add_to_cart'), 1, 6);
+		//add_action('woocommerce_add_to_cart', array($this, 'set_session_after_add_to_cart'), 1, 6);
+		add_action('woocommerce_add_to_cart', array($this, 'set_special_rfq_after_add_to_cart'), 1, 6);
 		add_filter('woocommerce_add_to_cart_redirect', array($this, 'custom_add_to_cart_redirect'));
 
 		add_filter('template_redirect', array($this, 'hide_unwanted_notice'));
@@ -60,7 +69,6 @@ class SpecialProductOptions
 		add_action('wp_logout', array($this, 'handle_logout_action'));
 
 		add_filter('mkl_pc_item_meta', array($this, 'filter_mkl_pc_item_meta'), 11, 5);
-
 		add_filter('wc_add_to_cart_message', array($this, 'change_notice_text'), 10);
 	}
 
@@ -73,12 +81,12 @@ class SpecialProductOptions
 	 **/
 	public function change_notice_text($notice)
 	{
-		if((Helper::get_instance())->is_distributor()) {
+		if (!(Helper::get_instance())->has_rfq_in_cart()) {
 			return $notice;
 		}
 
 		if (strpos($notice, 'has been added to your cart') !== false) {
-			$notice = str_ireplace('has been added to your cart', 'has been added to your RFQ Cart.Click the cart to submit your RFQ', $notice);
+			$notice = str_ireplace('has been added to your cart', 'has been added to your RFQ Cart. Click the cart to submit your RFQ', $notice);
 		}
 
 		return $notice;
@@ -309,6 +317,31 @@ class SpecialProductOptions
 				wc_clear_notices();
 				wc_add_notice('An RFQ product is detected in the cart. You must ' . $cart_url . ' that request before adding this new item to the cart.', 'notice');
 			}
+		}
+	}
+
+	/**
+	 * Sets session after a product is added to cart and determines if it's a special product.
+	 *
+	 * @param string $cart_item_key
+	 * @param int $product_id
+	 * @param int $quantity
+	 * @param int $variation_id
+	 * @param array $variation
+	 * @param array $cart_item_data
+	 * @return void
+	 */
+	public function set_special_rfq_after_add_to_cart($cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data)
+	{
+		$helper = Helper::get_instance();
+		if (!$helper->is_distributor()) {
+			return;
+		}
+
+		if ($this->is_current_product_has_special_option($cart_item_data)) {
+			$cart_content = WC()->cart->cart_contents;
+			$cart_content[$cart_item_key][self::IS_SPECIAL_PRODUCT_RFQ] = 'rfq_yes';
+			WC()->cart->set_cart_contents($cart_content);
 		}
 	}
 

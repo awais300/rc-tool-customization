@@ -70,16 +70,16 @@ class Pricing extends Singleton
      */
     public function __construct()
     {
-        $this->loader = TemplateLoader::get_instance();
+        //$this->loader = TemplateLoader::get_instance();
         add_action('woocommerce_before_calculate_totals', array($this, 'changing_cart_item_prices'), 2002, 1);
 
-        add_filter('woocommerce_cart_item_price', array($this, 'custom_woocommerce_cart_item_price_message'), 5000, 3);
-        add_filter('woocommerce_cart_item_subtotal', array($this, 'custom_woocommerce_cart_item_subtotal_message'), 5000, 3);
+        //add_filter('woocommerce_cart_item_price', array($this, 'custom_woocommerce_cart_item_price_message'), 5000, 3);
+        //add_filter('woocommerce_cart_item_subtotal', array($this, 'custom_woocommerce_cart_item_subtotal_message'), 5000, 3);
 
-        add_action('gform_pre_submission_' . self::FORM_ID, array($this, 'before_form_submit'));
+        //add_action('gform_pre_submission_' . self::FORM_ID, array($this, 'before_form_submit'));
 
-        add_action('woocommerce_cart_contents', array($this, 'hide_unwanted_woocommerce_cart_contents'), 9);
-        add_action('woocommerce_after_cart', array($this, 'add_gf_form'));
+        //add_action('woocommerce_cart_contents', array($this, 'hide_unwanted_woocommerce_cart_contents'), 9);
+        //add_action('woocommerce_after_cart', array($this, 'add_gf_form'));
     }
 
 
@@ -260,10 +260,10 @@ class Pricing extends Singleton
             $item_sku = $this->get_pc_sku($cart_item);
 
             // For testing purpose only.
-            /*$product_id = $cart_item['data']->get_id();
+            $product_id = $cart_item['data']->get_id();
             if ($product_id == '19235') {
                 $item_sku = 'JU963624.UGH';
-            }*/
+            }
 
             $series_type = $this->detect_series_by_sku($item_sku);
             if ($item_sku && $series_type) {
@@ -295,12 +295,6 @@ class Pricing extends Singleton
                 WC()->cart->set_cart_contents($cart_content);
             }
         }
-
-        if ($is_rfq_item_exist && is_checkout()) {
-            wc_add_notice('Please click on "Email for RFQ" to send your cart in the email', 'notice');
-            wp_redirect(wc_get_cart_url());
-            exit;
-        }
     }
 
 
@@ -313,22 +307,22 @@ class Pricing extends Singleton
      */
     function get_extra_price($cart_item)
     {
+        $full_extra_price = 0;
         if (mkl_pc_is_configurable($cart_item['product_id']) && isset($cart_item['configurator_data']) && is_array($cart_item['configurator_data'])) {
 
             foreach ($cart_item['configurator_data'] as $layer) {
                 if (!$layer) {
-                    return floatval(0);
+                    continue;
                 }
 
                 if (apply_filters('mkl_pc/extra_price/add_extra_price', true, $layer, $cart_item)) {
                     $extra_price = $layer->get_choice('extra_price');
-
-                    return floatval($extra_price);
+                    $full_extra_price = $full_extra_price + $extra_price;
                 }
             }
         }
 
-        return floatval(0);
+        return floatval($full_extra_price);
     }
 
     /**

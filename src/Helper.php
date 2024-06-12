@@ -2,6 +2,8 @@
 
 namespace EWA\RCTool;
 
+use EWA\RCTool\SpecialProductOptions as SpecialProductOptionsFrontend;
+
 defined('ABSPATH') || exit;
 
 /**
@@ -29,6 +31,56 @@ class Helper extends Singleton
         } else {
             return false;
         }
+    }
+
+
+    /**
+     * Check where the cart item has RFQ item in it.
+     *
+     * @param $cart_item array
+     *
+     * @return bool true if RFQ found, otherwise false.
+     **/
+    public function cart_has_rfq($cart_item)
+    {
+        if (
+            (isset($cart_item[Pricing::IS_PRODUCT_RFQ]) && $cart_item[Pricing::IS_PRODUCT_RFQ] == 'rfq_yes') ||
+            (isset($cart_item[SpecialProductOptionsFrontend::IS_SPECIAL_PRODUCT_RFQ]) && $cart_item[SpecialProductOptionsFrontend::IS_SPECIAL_PRODUCT_RFQ] == 'rfq_yes')
+        ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Check If cart has a RFQ item in it.
+     * 
+     * This is a product whose price couludn't find against SKU or SKU don't exist at all. 
+     * OR
+     * This is a product who has special option in it.
+     *
+     * @return bool
+     **/
+    public function has_rfq_in_cart()
+    {
+        $cart = WC()->cart;
+
+        if ($cart->is_empty()) {
+            return false;
+        }
+
+        foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
+            if (isset($cart_item[Pricing::IS_PRODUCT_RFQ]) && $cart_item[Pricing::IS_PRODUCT_RFQ] == 'rfq_yes') {
+                return true;
+            }
+
+            if(isset($cart_item[SpecialProductOptionsFrontend::IS_SPECIAL_PRODUCT_RFQ]) && $cart_item[SpecialProductOptionsFrontend::IS_SPECIAL_PRODUCT_RFQ] == 'rfq_yes') {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

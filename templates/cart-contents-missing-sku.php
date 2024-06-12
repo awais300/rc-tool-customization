@@ -1,5 +1,6 @@
 <?php
 
+use EWA\RCTool\Helper;
 use EWA\RCTool\Pricing;
 ?>
 <table class="shop_table shop_table_responsive cart woocommerce-cart-form__contents" cellspacing="0">
@@ -73,10 +74,10 @@ use EWA\RCTool\Pricing;
 
 					<td class="product-price" data-title="<?php esc_attr_e('Price', 'woocommerce'); ?>">
 						<?php
-						if (isset($cart_item[Pricing::IS_PRODUCT_RFQ]) && $cart_item[Pricing::IS_PRODUCT_RFQ] == 'rfq_no' && isset($cart_item[Pricing::PRODUCT_NEW_PRICE])) {
-							echo $cart_item[Pricing::PRODUCT_NEW_PRICE];
-						} else {
+						if ((Helper::get_instance()->cart_has_rfq($cart_item))) {
 							echo "-";
+						} else {
+							echo $cart_item[Pricing::PRODUCT_NEW_PRICE];
 						}
 						?>
 					</td>
@@ -90,10 +91,10 @@ use EWA\RCTool\Pricing;
 
 					<td class="product-subtotal" data-title="<?php esc_attr_e('Subtotal', 'woocommerce'); ?>">
 						<?php
-						if (isset($cart_item[Pricing::IS_PRODUCT_RFQ]) && $cart_item[Pricing::IS_PRODUCT_RFQ] == 'rfq_no' && isset($cart_item[Pricing::PRODUCT_NEW_PRICE])) {
-							echo $cart_item['line_subtotal'];
-						} else {
+						if ((Helper::get_instance()->cart_has_rfq($cart_item))) {
 							echo "-";
+						} else {
+							echo $cart_item['line_subtotal'];
 						}
 						?>
 					</td>

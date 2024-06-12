@@ -2,6 +2,10 @@
 
 namespace EWA\RCTool;
 
+use EWA\RCTool\Admin\Product\SpecialProductOptions;
+
+use EWA\RCTool\SpecialProductOptions as SpecialProductOptionsFrontend;
+
 defined('ABSPATH') || exit;
 
 /**
@@ -51,6 +55,27 @@ class Cart
 		add_filter('woocommerce_cart_item_subtotal', array($this, 'update_woocommerce_cart_item_subtotal'), 10, 3);
 		add_filter('gettext', array($this, 'rename_cart_text'), 10, 3);
 		add_filter('the_title', array($this, 'rename_cart_page_title'), 10, 2);
+
+		add_filter('woocommerce_cart_item_class', array($this, 'custom_cart_item_class'), 10, 3);
+	}
+
+	/**
+	 * Add css class to cart item row if its an RFQ item.
+	 *
+	 * @param string $class
+	 * @param array $cart_item
+	 * @param string $cart_item_key
+	 *
+	 * @return stirng
+	 **/
+	public function custom_cart_item_class($class, $cart_item, $cart_item_key)
+	{
+
+		if ((Helper::get_instance())->cart_has_rfq($cart_item)) {
+			return  $class .= ' rfq-item';
+		}
+
+		return $class;
 	}
 
 	/**
@@ -60,6 +85,8 @@ class Cart
 	public function disable_checkout_page()
 	{
 		if (is_checkout()) {
+			wc_add_notice('Please click on "Email for RFQ" to submit your request via email', 'notice');
+			wp_redirect(wc_get_cart_url());
 			wp_redirect(wc_get_page_permalink('shop'));
 			exit;
 		}
@@ -72,8 +99,9 @@ class Cart
 	public function add_request_form()
 	{
 		if (is_cart() && WC()->cart->get_cart_contents_count() != 0) {
-			echo '<div class="rc-request"><h1><span>Submit Your Request</span></h1></div>';
-			echo do_shortcode('[gravityform id="'. self::FORM_ID .'" title="false" description="false" ajax="true"]');
+			echo '<div class="rc-request"><h1><span>Submit Your Request</span></h1>';
+			echo do_shortcode('[gravityform id="' . self::FORM_ID . '" title="false" description="false" ajax="true"]');
+			echo '</div>';
 		}
 	}
 
@@ -114,18 +142,19 @@ class Cart
 		if (is_cart() || is_product()) {
 		?>
 			<style>
-				.mkl_pc-extra-price {
+				.rfq-item .mkl_pc-extra-price {
 					display: none !important;
 				}
 
-				.mkl_pc .mkl_pc_container .extra-cost.show {
+				.mkl_pc .mkl_pc_container .rfq-item .extra-cost.show {
 					display: none !important;
 				}
 
 				.form-cart .pc-total-price {
 					display: none !important;
 				}
-				div.cart-collaterals{
+
+				div.cart-collaterals {
 					display: none !important;
 				}
 			</style>
@@ -172,26 +201,34 @@ class Cart
 	 * @param  String $default
 	 * @param  Array $cart_item
 	 * @param  String $cart_item_key
+	 * 
 	 * @return String
 	 */
 	public function update_woocommerce_cart_item_price($default, $cart_item, $cart_item_key)
 	{
-		if (is_cart()) {
+
+		if (is_cart() && (Helper::get_instance())->cart_has_rfq($cart_item)) {
 			return '-';
+		} else {
+			return $default;
 		}
 	}
 
 	/**
 	 * Replace the cart subtotal price on cart page.
+	 * 
 	 * @param  String $default
-	 * @param  Boolean $compound_bool
-	 * @param  WC_Cart $cart_obj
+	 * @param  Array $cart_item
+	 * @param  String $cart_item_key
+	 * 
 	 * @return String
 	 */
-	public function update_woocommerce_cart_item_subtotal($default, $compound_bool, $cart_obj)
+	public function update_woocommerce_cart_item_subtotal($default, $cart_item, $cart_item_key)
 	{
-		if (is_cart()) {
+		if (is_cart() && (Helper::get_instance())->cart_has_rfq($cart_item)) {
 			return '-';
+		} else {
+			return $default;
 		}
 	}
 

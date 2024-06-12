@@ -17,8 +17,6 @@ var PC_IS_SPECIAL_OPTION_OPTED_2 = false;
 var PC_IS_SPECIAL_OPTION_OPTED_3 = false;
 
 wp.hooks.addAction('PC.fe.start', 'mkl/product_configurator', function(configurator) {
-    console.log('Product configurator started!');
-
     jQuery(document).ready(function($) {
 
         if (RCT_OBJ.is_guest_user) {
