@@ -3,14 +3,14 @@
 namespace EWA\RCTool;
 
 use EWA\RCTool\Admin\Settings;
-use EWA\RCTool\Admin\Product\LeadTime;
-use EWA\RCTool\Admin\Acf\UserFields;
 use EWA\RCTool\Admin\UserList;
-use EWA\RCTool\Admin\Acf\PricingLevels;
-//use EWA\RCTool\Admin\Product\SpecialProductOptions;
-use EWA\RCTool\SpecialProductOptions as SpecialProductOptionsFrontend;
 use EWA\RCTool\Admin\Order;
 use EWA\RCTool\Admin\RCToolAdminMenu;
+
+use EWA\RCTool\Admin\Acf\PricingLevels;
+use EWA\RCTool\Admin\Acf\UserFields;
+
+use EWA\RCTool\Admin\Product\LeadTime;
 
 defined('ABSPATH') || exit;
 
@@ -102,9 +102,9 @@ class Bootstrap
 	 */
 	public function init()
 	{
-		new User();
-		new Pricing();
 		new Settings();
+		new Pricing();
+		new User();
 		new UserFields();
 		new UserList();
 		new PricingLevels();
@@ -114,18 +114,8 @@ class Bootstrap
 		new SingleProduct();
 		new Order();
 		new MyAccountOrder();
-		new SpecialProductOptionsFrontend();
+		new SpecialProductOptions();
 		new Blog();
-		
-		/*if (!is_admin()) {
-			if (
-				!(Helper::get_instance())->is_distributor() ||
-				WC()->session->get(SpecialProductOptionsFrontend::SESS_RC_SPECIAL_PRODUCT) === 'yes' ||
-				(Helper::get_instance())->has_rfq_in_cart()
-			) {
-				new Cart();
-			}
-		}*/
 	}
 
 	/**
@@ -135,7 +125,8 @@ class Bootstrap
 	{
 		if (!is_admin()) {
 			if (
-				!(Helper::get_instance())->is_distributor() || (Helper::get_instance())->has_rfq_in_cart()
+				!(Helper::get_instance())->is_distributor() ||
+				(Helper::get_instance())->has_rfq_in_cart()
 			) {
 				new Cart();
 			}

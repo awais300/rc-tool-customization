@@ -3,8 +3,6 @@
 namespace EWA\RCTool;
 
 use EWA\RCTool\Admin\Acf\UserFields;
-use EWA\RCTool\SpecialProductOptions as SpecialProductOptionsFrontend;
-use Exception;
 
 defined('ABSPATH') || exit;
 
@@ -50,11 +48,6 @@ class Pricing extends Singleton
     private $loader = null;
 
     /**
-     * @var FORM_ID The form ID.
-     **/
-    public const FORM_ID = 3;
-
-    /**
      * @var IS_PRODUCT_RFQ The key to detect if its RFQ.
      **/
     public const IS_PRODUCT_RFQ = '_is_product_rfq';
@@ -70,174 +63,17 @@ class Pricing extends Singleton
      */
     public function __construct()
     {
-        //$this->loader = TemplateLoader::get_instance();
-        add_action('woocommerce_before_calculate_totals', array($this, 'changing_cart_item_prices'), 2002, 1);
-
-        //add_filter('woocommerce_cart_item_price', array($this, 'custom_woocommerce_cart_item_price_message'), 5000, 3);
-        //add_filter('woocommerce_cart_item_subtotal', array($this, 'custom_woocommerce_cart_item_subtotal_message'), 5000, 3);
-
-        //add_action('gform_pre_submission_' . self::FORM_ID, array($this, 'before_form_submit'));
-
-        //add_action('woocommerce_cart_contents', array($this, 'hide_unwanted_woocommerce_cart_contents'), 9);
-        //add_action('woocommerce_after_cart', array($this, 'add_gf_form'));
-    }
-
-
-    /**
-     * Add GF form
-     **/
-    public function add_gf_form()
-    {
-
-        if (
-            is_cart() &&
-            WC()->cart->get_cart_contents_count() != 0 &&
-            $this->has_rfq_in_cart() &&
-            WC()->session->get(SpecialProductOptionsFrontend::SESS_RC_SPECIAL_PRODUCT) === 'no'
-        ) {
-            echo '<div id="rfq-email" class="rc-request-2"><h1><span>Submit Your Request</span></h1>';
-            echo do_shortcode('[gravityform id="' . self::FORM_ID . '" title="false" description="false" ajax="true"]');
-            echo '</div>';
-        }
+        add_action('woocommerce_before_calculate_totals', array($this, 'update_cart_item_prices'), 2002, 1);
     }
 
     /**
-     * Hide cart sections.
-     **/
-    public function hide_unwanted_woocommerce_cart_contents()
-    {
-        if (is_cart() && $this->has_rfq_in_cart() && WC()->session->get(SpecialProductOptionsFrontend::SESS_RC_SPECIAL_PRODUCT) === 'no') {
-
-            remove_action('woocommerce_proceed_to_checkout', 'woocommerce_button_proceed_to_checkout', 20);
-            //remove_action('woocommerce_cart_collaterals', 'woocommerce_cross_sell_display');
-            //remove_action('woocommerce_cart_collaterals', 'woocommerce_cart_totals', 10);
-            add_filter('woocommerce_coupons_enabled', '__return_false');
-?>
-            <style>
-                div.cart-collaterals {
-                    display: none !important;
-                }
-            </style>
-        <?php
-        }
-
-        if (!$this->has_rfq_in_cart()) {
-        ?>
-            <style>
-                div.rc-request-2 {
-                    display: none !important;
-                }
-
-                div.cart-collaterals {
-                    display: block !important;
-                }
-            </style>
-<?php
-        }
-    }
-
-    /**
-     * Replace price with custom message.
-     * 
-     * @param $price
-     * @param $cart_item
-     * @param $cart_item_key
-     *
-     * @return string The custom message.
-     **/
-    public function custom_woocommerce_cart_item_price_message($price, $cart_item, $cart_item_key)
-    {
-        if (WC()->session->get(SpecialProductOptionsFrontend::SESS_RC_SPECIAL_PRODUCT) === 'yes') {
-            return $price;
-        }
-
-        $item_price = $cart_item['data']->get_price();
-        $custom_message = $price;
-
-        if ($item_price == 0) {
-            $custom_message = '<a class="rfq-email" href="javascript:void(0);">Email for RFQ</a>';
-        }
-
-        return $custom_message;
-    }
-
-
-    /**
-     * Replace linet item subtotal with custom message.
-     *
-     * @param $subtotal
-     * @param $cart_item
-     * @param $cart_item_key
-     *
-     * @return string The custom message.
-     **/
-    public function custom_woocommerce_cart_item_subtotal_message($subtotal, $cart_item, $cart_item_key)
-    {
-        if (WC()->session->get(SpecialProductOptionsFrontend::SESS_RC_SPECIAL_PRODUCT) === 'yes') {
-            return $subtotal;
-        }
-
-        $item_price = $cart_item['data']->get_price();
-        $custom_message = $subtotal;
-
-        if ($item_price == 0) {
-            $custom_message = '-';
-        }
-
-        return $custom_message;
-    }
-
-    /**
-     * Update cart contents for RFQ before sending email.
-     * This form is for those RFQ proudcts whose SKU is missing in Excel sheet.
-     *
-     * @return void
-     */
-    public function before_form_submit($form)
-    {
-        if (
-            is_cart() &&
-            $this->has_rfq_in_cart() &&
-            WC()->session->get(SpecialProductOptionsFrontend::SESS_RC_SPECIAL_PRODUCT) === 'no'
-        ) {
-            $data = array();
-            $cart_contents = $this->loader->get_template(
-                'cart-contents-missing-sku.php',
-                $data,
-                RCT_CUST_PLUGIN_DIR_PATH . '/templates/',
-                false
-            );
-
-            $_POST['input_8'] = $cart_contents;
-        }
-    }
-
-    /**
-     * Check If cart has a RFQ item in it.
-     * 
-     * A product whose price couludn't find against SKU or SKU don't exist at all.
-     *
-     * @return bool
-     **/
-    public function has_rfq_in_cart()
-    {
-        $cart = WC()->cart;
-        foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
-            if (isset($cart_item[self::IS_PRODUCT_RFQ]) && $cart_item[self::IS_PRODUCT_RFQ] == 'rfq_yes') {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Change the prices of cart items based on pricing levels.
+     * Update the prices of cart items based on pricing levels.
      *
      * @param object $cart The WooCommerce cart object.
+     * 
      * @return void
      */
-    public function changing_cart_item_prices($cart)
+    public function update_cart_item_prices($cart)
     {
         if (!(Helper::get_instance())->is_distributor()) {
             return;
@@ -251,8 +87,6 @@ class Pricing extends Singleton
         if (did_action('woocommerce_before_calculate_totals') >= 2) {
             return;
         }
-
-        $is_rfq_item_exist = false;
 
         // Loop through cart items
         foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
@@ -288,7 +122,6 @@ class Pricing extends Singleton
                 WC()->cart->set_cart_contents($cart_content);
             } else {
                 $cart_item['data']->set_price(0);
-                $is_rfq_item_exist = true;
 
                 $cart_content = WC()->cart->cart_contents;
                 $cart_content[$cart_item_key][self::IS_PRODUCT_RFQ] = 'rfq_yes';
@@ -296,7 +129,6 @@ class Pricing extends Singleton
             }
         }
     }
-
 
     /**
      * Get extra price if configurable proudct has any.

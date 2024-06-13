@@ -2,10 +2,6 @@
 
 namespace EWA\RCTool;
 
-use EWA\RCTool\Admin\Product\SpecialProductOptions;
-
-use EWA\RCTool\SpecialProductOptions as SpecialProductOptionsFrontend;
-
 defined('ABSPATH') || exit;
 
 /**
@@ -13,7 +9,7 @@ defined('ABSPATH') || exit;
  * @package EWA\RCTool
  */
 
-class Cart
+class Cart extends Singleton
 {
 	/**
 	 * The Cart page ID.
@@ -42,7 +38,7 @@ class Cart
 		add_action('wp_head', array($this, 'remove_sections_on_cart_page'));
 		add_action('wp_head', array($this, 'add_css'));
 
-		add_action('woocommerce_cart_collaterals', array($this, 'remove_cart_totals_section'), 9);
+		//add_action('woocommerce_cart_collaterals', array($this, 'remove_cart_totals_section'), 9);
 		add_action('template_redirect', array($this, 'disable_checkout_page'), 9);
 		add_action('woocommerce_after_cart', array($this, 'add_request_form'), 9);
 
@@ -53,9 +49,9 @@ class Cart
 		add_filter('woocommerce_coupons_enabled', array($this, 'hide_coupon_field_on_cart_page'));
 		add_filter('woocommerce_cart_item_price', array($this, 'update_woocommerce_cart_item_price'), 10, 3);
 		add_filter('woocommerce_cart_item_subtotal', array($this, 'update_woocommerce_cart_item_subtotal'), 10, 3);
+
 		add_filter('gettext', array($this, 'rename_cart_text'), 10, 3);
 		add_filter('the_title', array($this, 'rename_cart_page_title'), 10, 2);
-
 		add_filter('woocommerce_cart_item_class', array($this, 'custom_cart_item_class'), 10, 3);
 	}
 
@@ -80,26 +76,28 @@ class Cart
 
 	/**
 	 * Disable checkout page.
+	 * 
 	 * @return void
 	 */
 	public function disable_checkout_page()
 	{
 		if (is_checkout()) {
-			wc_add_notice('Please click on "Email for RFQ" to submit your request via email', 'notice');
+			$email_for_rfq = $this->get_email_to_rfq_html();
+			wc_add_notice('Please click on "' . $email_for_rfq . '" to submit your request via email', 'notice');
 			wp_redirect(wc_get_cart_url());
-			wp_redirect(wc_get_page_permalink('shop'));
 			exit;
 		}
 	}
 
 	/**
 	 * Add a request form.
+	 * 
 	 * @return void
 	 */
 	public function add_request_form()
 	{
 		if (is_cart() && WC()->cart->get_cart_contents_count() != 0) {
-			echo '<div class="rc-request"><h1><span>Submit Your Request</span></h1>';
+			echo '<div id="rfq-email" class="rc-request"><h1><span>Submit Your Request</span></h1>';
 			echo do_shortcode('[gravityform id="' . self::FORM_ID . '" title="false" description="false" ajax="true"]');
 			echo '</div>';
 		}
@@ -155,7 +153,7 @@ class Cart
 				}
 
 				div.cart-collaterals {
-					display: none !important;
+					display: none;
 				}
 			</style>
 <?php
@@ -185,6 +183,7 @@ class Cart
 	 * Hide coupon section on cart page.
 	 *
 	 * @param  bool $enabled
+	 * 
 	 * @return bool
 	 */
 	public function hide_coupon_field_on_cart_page($enabled)
@@ -208,7 +207,7 @@ class Cart
 	{
 
 		if (is_cart() && (Helper::get_instance())->cart_has_rfq($cart_item)) {
-			return '-';
+			return $this->get_email_to_rfq_html();
 		} else {
 			return $default;
 		}
@@ -241,10 +240,9 @@ class Cart
 	 */
 	public function rename_cart_text($translated_text, $untranslated_text, $domain)
 	{
-		if (is_cart()) {
-			$translated_text = str_ireplace('cart', 'RFQ', $translated_text);
+		if ($translated_text === 'Cart updated.') {
+			$translated_text = 'RFQ Updated.';
 		}
-
 		return $translated_text;
 	}
 
@@ -273,5 +271,15 @@ class Cart
 	{
 		// Clear cart.
 		WC()->cart->empty_cart();
+	}
+
+	/**
+	 * Get html for Email to RFQ link.
+	 *
+	 * @return string.
+	 **/
+	public function get_email_to_rfq_html()
+	{
+		return '<a class="rfq-email" href="javascript:void(0);">Email for RFQ</a>';
 	}
 }

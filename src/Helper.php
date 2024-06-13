@@ -2,8 +2,6 @@
 
 namespace EWA\RCTool;
 
-use EWA\RCTool\SpecialProductOptions as SpecialProductOptionsFrontend;
-
 defined('ABSPATH') || exit;
 
 /**
@@ -45,7 +43,7 @@ class Helper extends Singleton
     {
         if (
             (isset($cart_item[Pricing::IS_PRODUCT_RFQ]) && $cart_item[Pricing::IS_PRODUCT_RFQ] == 'rfq_yes') ||
-            (isset($cart_item[SpecialProductOptionsFrontend::IS_SPECIAL_PRODUCT_RFQ]) && $cart_item[SpecialProductOptionsFrontend::IS_SPECIAL_PRODUCT_RFQ] == 'rfq_yes')
+            (isset($cart_item[SpecialProductOptions::IS_SPECIAL_PRODUCT_RFQ]) && $cart_item[SpecialProductOptions::IS_SPECIAL_PRODUCT_RFQ] == 'rfq_yes')
         ) {
             return true;
         } else {
@@ -75,55 +73,12 @@ class Helper extends Singleton
                 return true;
             }
 
-            if(isset($cart_item[SpecialProductOptionsFrontend::IS_SPECIAL_PRODUCT_RFQ]) && $cart_item[SpecialProductOptionsFrontend::IS_SPECIAL_PRODUCT_RFQ] == 'rfq_yes') {
+            if(isset($cart_item[SpecialProductOptions::IS_SPECIAL_PRODUCT_RFQ]) && $cart_item[SpecialProductOptions::IS_SPECIAL_PRODUCT_RFQ] == 'rfq_yes') {
                 return true;
             }
         }
 
         return false;
-    }
-
-    /**
-     * Check if a product in the cart has any special options.
-     *
-     * @return boolean True if a product with special options is in the cart, false otherwise.
-     */
-    public function is_special_option_product_in_cart()
-    {
-        $found = false;
-        foreach (WC()->cart->get_cart() as $cart_item) {
-            if (
-                (isset($cart_item[SpecialProductOptions::WELDED_FIELD]) && !empty($cart_item[SpecialProductOptions::WELDED_FIELD])) ||
-                (isset($cart_item[SpecialProductOptions::ADJUSTABLE_FIELD]) && !empty($cart_item[SpecialProductOptions::ADJUSTABLE_FIELD])) ||
-                (isset($cart_item[SpecialProductOptions::SIZE_FIELD]) && !empty($cart_item[SpecialProductOptions::SIZE_FIELD])) ||
-                (isset($cart_item[SpecialProductOptions::NOTES_FIELD]) && !empty($cart_item[SpecialProductOptions::NOTES_FIELD]))
-            ) {
-                $found = true;
-                break;
-            }
-        }
-
-        return $found;
-    }
-
-    /**
-     * Check if a single/current product has special options.
-     *
-     * @param array $post The post data.
-     * @return boolean True if the product has special options, false otherwise.
-     */
-    public function is_special_option_product($post)
-    {
-        if (
-            (isset($post[SpecialProductOptions::WELDED_FIELD]) && !empty($post[SpecialProductOptions::WELDED_FIELD])) ||
-            (isset($post[SpecialProductOptions::ADJUSTABLE_FIELD]) && !empty($post[SpecialProductOptions::ADJUSTABLE_FIELD])) ||
-            (isset($post[SpecialProductOptions::SIZE_FIELD]) && !empty($post[SpecialProductOptions::SIZE_FIELD])) ||
-            (isset($post[SpecialProductOptions::NOTES_FIELD]) && !empty($post[SpecialProductOptions::NOTES_FIELD]))
-        ) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     /**
