@@ -97,7 +97,7 @@ class Cart extends Singleton
 	public function add_request_form()
 	{
 		if (is_cart() && WC()->cart->get_cart_contents_count() != 0) {
-			echo '<div id="rfq-email" class="rc-request"><h1><span>Submit Your Request</span></h1>';
+			echo '<div id="rfq-email" class="rc-request">';
 			echo do_shortcode('[gravityform id="' . self::FORM_ID . '" title="false" description="false" ajax="true"]');
 			echo '</div>';
 		}

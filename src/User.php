@@ -15,6 +15,7 @@ class User
 	 */
     public function __construct() {
         add_filter( 'login_redirect', array( $this, 'my_custom_login_redirect' ), 10, 3 );
+         add_filter('woocommerce_thankyou_order_received_text', array($this, 'custom_thank_you_message'), 10, 2);
     }
 
     /**
@@ -34,5 +35,17 @@ class User
         }
         // If user is an admin, or not logging in from the login page, do not change the redirection
         return $redirect_to;
+    }
+
+    /**
+     * Custom thank you message
+     *
+     * @param string $thank_you_text The original thank you message
+     * @param WC_Order $order The order object
+     * @return string The custom thank you message
+     */
+    public function custom_thank_you_message($thank_you_text, $order) {
+        $thank_you_text = 'Thank you for your order. A confirmation of this order will be emailed to you within two business days.';
+        return $thank_you_text;
     }
 }

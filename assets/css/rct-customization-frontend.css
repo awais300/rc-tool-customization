@@ -18,3 +18,7 @@
 .mkl-pc-edit-link--container {
     display: none !important;
 }
+
+form.woocommerce-shipping-calculator.shipping_calculator {
+    display: none;
+}
