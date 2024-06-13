@@ -95,6 +95,7 @@ class SpecialProductOptions
 	 **/
 	public function show_hide_woocommerce_cart_contents()
 	{
+
 		if ((Helper::get_instance())->has_rfq_in_cart()) {
 ?>
 			<style>
@@ -104,7 +105,6 @@ class SpecialProductOptions
 			</style>
 		<?php
 		} else {
-			remove_filter('the_title', array(Cart::get_instance(), 'rename_cart_page_title'), 10);
 		?>
 			<style>
 				div.rc-request {

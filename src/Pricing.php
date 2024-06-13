@@ -76,6 +76,11 @@ class Pricing extends Singleton
     public function update_cart_item_prices($cart)
     {
         if (!(Helper::get_instance())->is_distributor()) {
+            foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
+                $cart_content = WC()->cart->cart_contents;
+                $cart_content[$cart_item_key][self::IS_PRODUCT_RFQ] = 'rfq_yes';
+                WC()->cart->set_cart_contents($cart_content);
+            }
             return;
         }
 
