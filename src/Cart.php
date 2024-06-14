@@ -53,6 +53,9 @@ class Cart extends Singleton
 		add_filter('gettext', array($this, 'rename_cart_text'), 10, 3);
 		add_filter('the_title', array($this, 'rename_cart_page_title'), 10, 2);
 		add_filter('woocommerce_cart_item_class', array($this, 'custom_cart_item_class'), 10, 3);
+
+		add_action('woocommerce_before_cart', array($this, 'add_text_after_the_page_title'));
+		add_action('woocommerce_proceed_to_checkout', array($this, 'add_custom_cart_button'));
 	}
 
 	/**
@@ -82,8 +85,7 @@ class Cart extends Singleton
 	public function disable_checkout_page()
 	{
 		if (is_checkout()) {
-			$email_for_rfq = $this->get_email_to_rfq_html();
-			wc_add_notice('Please click on "' . $email_for_rfq . '" to submit your request via email', 'notice');
+			wc_add_notice('Please click on "' . $this->get_scroll_link('Email for RFQ') . '" to submit your request via email', 'notice');
 			wp_redirect(wc_get_cart_url());
 			exit;
 		}
@@ -207,7 +209,7 @@ class Cart extends Singleton
 	{
 
 		if (is_cart() && (Helper::get_instance())->cart_has_rfq($cart_item)) {
-			return $this->get_email_to_rfq_html();
+			return $this->get_scroll_link('Emai to RFQ');
 		} else {
 			return $default;
 		}
@@ -241,7 +243,7 @@ class Cart extends Singleton
 	public function rename_cart_text($translated_text, $untranslated_text, $domain)
 	{
 		if ($translated_text === 'Cart updated.') {
-			$translated_text = 'RFQ Updated.';
+			$translated_text = 'Request for Quote Updated.';
 		}
 		return $translated_text;
 	}
@@ -256,7 +258,7 @@ class Cart extends Singleton
 	{
 
 		if (is_cart() && $id == $this->cart_page_id) {
-			return 'RFQ';
+			return '<span id="rfq-main-title">Request for Quote</span><span id="cart-main-title">Cart</span>';
 		}
 
 		return $title;
@@ -274,12 +276,35 @@ class Cart extends Singleton
 	}
 
 	/**
-	 * Get html for Email to RFQ link.
+	 * Get html to scorll to RFQ form.
 	 *
 	 * @return string.
 	 **/
-	public function get_email_to_rfq_html()
+	public function get_scroll_link($text)
 	{
-		return '<a class="rfq-email" href="javascript:void(0);">Email for RFQ</a>';
+		$link = '<a Class="rfq-email" href="javascript:void(0);">' . $text . '</a>';
+		return $link;
+	}
+
+	/**
+	 * Text to show after page title.
+	 *
+	 * @return string.
+	 **/
+	public function add_text_after_the_page_title()
+	{
+		if ((Helper::get_instance())->has_rfq_in_cart()) {
+			echo "<p id='rfq-summary'>You have products that require a custom quote. Please " . $this->get_scroll_link('scroll') . " to the bottom of this page to " . $this->get_scroll_link('submit your Request for Quote') . ". It will send us a list of all of your items in your cart. We will give you a custom quote on the whole cart at the same time. Thank you.</p>";
+		}
+	}
+
+	/**
+	 * Add custom button to the cart page
+	 */
+	public function add_custom_cart_button()
+	{
+		if ((Helper::get_instance())->has_rfq_in_cart()) {
+			echo '<a href="javascript:void(0);" class="rfq-email button rfq-cart-button">Submit Request for Quote</a>';
+		}
 	}
 }

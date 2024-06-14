@@ -81,8 +81,8 @@ function update_shelf($obj, $) {
 
 function change_add_to_cart_text() {
     if (PC_IS_SPECIAL_OPTION_OPTED_1 || PC_IS_SPECIAL_OPTION_OPTED_2 || PC_IS_SPECIAL_OPTION_OPTED_3) {
-        jQuery('button.configurator-add-to-cart span').text('Add to RFQ');
-        jQuery('button.edit-cart-item.configurator-add-to-cart span').text('Edit item in RFQ');
+        jQuery('button.configurator-add-to-cart span').text('Add to Request for Quote');
+        jQuery('button.edit-cart-item.configurator-add-to-cart span').text('Edit item in Request for Quote');
     } else {
         jQuery('button.configurator-add-to-cart span').text('Add to Cart');
         jQuery('button.edit-cart-item.configurator-add-to-cart span').text('Edit item in Cart');
@@ -90,6 +90,6 @@ function change_add_to_cart_text() {
 }
 
 function guest_change_add_to_cart_text() {
-    jQuery('button.configurator-add-to-cart span').text('Add to RFQ');
-    jQuery('button.edit-cart-item.configurator-add-to-cart span').text('Edit item in RFQ');
+    jQuery('button.configurator-add-to-cart span').text('Add to Request for Quote');
+    jQuery('button.edit-cart-item.configurator-add-to-cart span').text('Edit item in Request for Quote');
 }
