@@ -84,7 +84,7 @@ class SpecialProductOptions
 	public function rename_cart_text($translated_text, $untranslated_text, $domain)
 	{
 		if (is_cart() && (Helper::get_instance())->has_rfq_in_cart()) {
-			$translated_text = str_ireplace('cart', 'RFQ', $translated_text);
+			$translated_text = str_ireplace('cart', 'Request for Quote', $translated_text);
 		}
 
 		return $translated_text;
@@ -99,14 +99,38 @@ class SpecialProductOptions
 		if ((Helper::get_instance())->has_rfq_in_cart()) {
 ?>
 			<style>
+				#rfq-main-title {
+					display: block;
+				}
+
+				#cart-main-title {
+					display: none;
+				}
+
 				div.cart-collaterals {
 					display: none !important;
+				}
+
+				p#rfq-summary {
+					display: block;
 				}
 			</style>
 		<?php
 		} else {
 		?>
 			<style>
+				#rfq-main-title {
+					display: none;
+				}
+
+				#cart-main-title {
+					display: blcok;
+				}
+
+				p#rfq-summary {
+					display: none;
+				}
+
 				div.rc-request {
 					display: none !important;
 				}
@@ -133,7 +157,8 @@ class SpecialProductOptions
 		}
 
 		if (strpos($notice, 'has been added to your cart') !== false) {
-			$notice = str_ireplace('has been added to your cart', 'has been added to your RFQ Cart. Click the cart to submit your RFQ', $notice);
+			$link = '<a href="' . wc_get_cart_url() . '">Click the cart</a>';
+			$notice = str_ireplace('has been added to your cart', 'has been added to your RFQ Cart. ' . $link . ' to submit your RFQ', $notice);
 		}
 
 		return $notice;

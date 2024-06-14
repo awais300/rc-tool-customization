@@ -99,10 +99,10 @@ class Pricing extends Singleton
             $item_sku = $this->get_pc_sku($cart_item);
 
             // For testing purpose only.
-            /*$product_id = $cart_item['data']->get_id();
+            $product_id = $cart_item['data']->get_id();
             if ($product_id == '19235') {
                 $item_sku = 'JU963624.UGH';
-            }*/
+            }
 
             $series_type = $this->detect_series_by_sku($item_sku);
             if ($item_sku && $series_type) {
